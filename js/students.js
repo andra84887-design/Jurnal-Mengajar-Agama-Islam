@@ -554,7 +554,8 @@ const StudentsModule = {
     // Deteksi baris header (misal hasil salin langsung dari Excel)
     const isHeaderLine = (parts) => {
       const joined = parts.join(" ").toLowerCase();
-      return /(nisn|nama|jenis\s*kelamin|^jk$|^l\/p$|no\.?|nomor|kelas)/.test(joined) &&
+      // Menggunakan word boundary (\b) agar nama seperti "Retno", "Novia", atau "Purnama" tidak keliru dianggap header
+      return /(\bnisn\b|\bnama\b|\bjenis\s*kelamin\b|^jk$|^l\/p$|\bno\.?\b|\bnomor\b|\bkelas\b)/.test(joined) &&
         !/\d{3,}/.test(joined);
     };
 

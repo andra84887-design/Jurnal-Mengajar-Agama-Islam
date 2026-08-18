@@ -1,0 +1,2 @@
+- Prefers communication in Indonesian. Confidence: 0.85
+- Prefers completed code changes to be pushed to GitHub (typically the repository's `origin/main`) as part of the workflow. Confidence: 0.9
