@@ -542,25 +542,66 @@ const StudentsModule = {
       return;
     }
 
+    // Bersihkan BOM / karakter tak terlihat dari awal teks
+    const cleanValue = (v) => {
+      return String(v || "")
+        .replace(/^\uFEFF/, "")
+        .replace(/^['"]|['"]$/g, "")
+        .replace(/\u00A0/g, " ")
+        .trim();
+    };
+
+    // Deteksi baris header (misal hasil salin langsung dari Excel)
+    const isHeaderLine = (parts) => {
+      const joined = parts.join(" ").toLowerCase();
+      return /(nisn|nama|jenis\s*kelamin|^jk$|^l\/p$|no\.?|nomor|kelas)/.test(joined) &&
+        !/\d{3,}/.test(joined);
+    };
+
+    // Normalisasi NISN: "007.701" -> "007701", buang karakter non-digit di awal
+    const normalizeNisn = (v) => {
+      const s = cleanValue(v).replace(/\./g, "");
+      return s;
+    };
+
     let students = StorageService.getStudents();
     let addedCount = 0;
+    let skippedCount = 0;
 
     lines.forEach((line, index) => {
       // Split by tab, comma, or semicolon
       let parts = line.includes("\t") ? line.split("\t") : (line.includes(",") ? line.split(",") : (line.includes(";") ? line.split(";") : [line]));
-      parts = parts.map(p => p.trim()).filter(p => p.length > 0);
+      parts = parts.map(cleanValue).filter(p => p.length > 0);
+
+      if (parts.length === 0) return;
+      if (isHeaderLine(parts)) { skippedCount++; return; }
 
       let name = "";
       let nisn = "-";
       let gender = "L";
 
+      // Jika ada 4 kolom: biasanya (No, NISN, Nama, JK) dari Excel -> buang kolom nomor urut
+      if (parts.length >= 4) {
+        if (/^\d+$/.test(parts[0]) && parts[0].length <= 3) {
+          parts = parts.slice(1); // buang nomor urut
+        } else if (/^\d+$/.test(parts[1])) {
+          parts = [parts[1], parts[2], parts[3]]; // (nama, NISN, ...) -> gunakan NISN di index 1
+        }
+      }
+
       if (parts.length === 1) {
-        // Hanya Nama
-        name = parts[0];
-      } else if (parts.length === 2) {
-        // Bisa: (NISN, Nama) atau (Nama, Gender)
+        // Hanya Nama (atau NISN)
         if (/^\d+$/.test(parts[0])) {
           nisn = parts[0];
+          name = parts[0]; // fallback: NISN saja tidak punya nama -> tetap tampilkan NISN sebagai nama? TIDAK: lewati
+          name = "";
+        } else {
+          name = parts[0];
+        }
+      } else if (parts.length === 2) {
+        // Bisa: (NISN, Nama) atau (Nama, Gender)
+        if (/^\d+$/.test(normalizeNisn(parts[0]))) {
+          nisn = normalizeNisn(parts[0]);
           name = parts[1];
         } else {
           name = parts[0];
@@ -568,10 +609,15 @@ const StudentsModule = {
           gender = (g === "P" || g === "PEREMPUAN" || g === "WANITA") ? "P" : "L";
         }
       } else {
-        // (NISN, Nama, Gender) atau sebaliknya
-        if (/^\d+$/.test(parts[0])) {
-          nisn = parts[0];
+        // (NISN, Nama, Gender) atau (Nama, NISN, Gender) atau (Nama, Gender, NISN)
+        if (/^\d+$/.test(normalizeNisn(parts[0]))) {
+          nisn = normalizeNisn(parts[0]);
           name = parts[1];
+          const g = parts[2].toUpperCase();
+          gender = (g === "P" || g === "PEREMPUAN" || g === "WANITA") ? "P" : "L";
+        } else if (/^\d+$/.test(normalizeNisn(parts[1]))) {
+          name = parts[0];
+          nisn = normalizeNisn(parts[1]);
           const g = parts[2].toUpperCase();
           gender = (g === "P" || g === "PEREMPUAN" || g === "WANITA") ? "P" : "L";
         } else {
@@ -598,8 +644,15 @@ const StudentsModule = {
         students.push(newStudent);
         if (window.SupabaseService) SupabaseService.saveStudentRemote(newStudent);
         addedCount++;
+      } else {
+        skippedCount++;
       }
     });
+
+    if (addedCount === 0) {
+      App.showToast("Tidak ada nama siswa valid ditemukan. Periksa format: NISN, Nama, L/P (satu siswa per baris).", "warning");
+      return;
+    }
 
     StorageService.saveStudents(students);
     App.closeModal("batchStudentModal");
