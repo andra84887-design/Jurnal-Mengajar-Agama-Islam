@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jurnal Mengajar Guru Agama Islam SD & SMP THHK</title>
+  <meta name="description" content="Aplikasi Jurnal Mengajar dan Rekap Nilai Guru Pendidikan Agama Islam (PAI) SD dan SMP THHK">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">☪</div>
+        <div class="brand-info">
+          <h1>Jurnal PAI THHK</h1>
+          <span>SD & SMP TERPADU</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Menu Utama</div>
+        <a href="#dashboard" class="nav-item active" data-tab="dashboard">
+          <span class="nav-item-icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="#journal" class="nav-item" data-tab="journal">
+          <span class="nav-item-icon">📖</span>
+          <span>Jurnal Mengajar</span>
+        </a>
+        <a href="#grades" class="nav-item" data-tab="grades">
+          <span class="nav-item-icon">📝</span>
+          <span>Tugas & Buku Nilai</span>
+        </a>
+        <a href="#syllabus" class="nav-item" data-tab="syllabus">
+          <span class="nav-item-icon">📚</span>
+          <span>Bank Materi PAI</span>
+        </a>
+        <a href="#students" class="nav-item" data-tab="students">
+          <span class="nav-item-icon">👥</span>
+          <span>Data Siswa & Kelas</span>
+        </a>
+
+        <div class="nav-section-label mt-3">Laporan & Pengaturan</div>
+        <a href="#reports" class="nav-item" data-tab="reports">
+          <span class="nav-item-icon">🖨️</span>
+          <span>Cetak Rekap / PDF</span>
+        </a>
+        <a href="#settings" class="nav-item" data-tab="settings">
+          <span class="nav-item-icon">⚙️</span>
+          <span>Pengaturan & Backup</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="school-badge-box">
+          <div class="school-avatar">🏫</div>
+          <div class="school-meta">
+            <strong id="headerSchoolName">SEKOLAH THHK</strong>
+            <span>Pendidikan Agama Islam</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Top Sticky Header -->
+      <header class="top-header no-print">
+        <div class="header-left">
+          <div class="header-school-tag">
+            <span>⭐</span> SD & SMP THHK
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="header-teacher-profile">
+            <div class="teacher-avatar-sm">👳</div>
+            <span class="teacher-title-text" id="headerTeacherName">Guru Pendidikan Agama Islam</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Views Container -->
+      <div class="content-body">
+
+        <!-- ================================================================
+             1. DASHBOARD VIEW
+             ================================================================ -->
+        <section class="view-section active" id="view-dashboard">
+          <div class="page-hero">
+            <div class="hero-text">
+              <h2>Ahlan wa Sahlan, Guru PAI THHK! 🌟</h2>
+              <p>Kelola agenda pembelajaran harian SD (Kelas 1–6) & SMP (Kelas 7–9), rekap tugas hafalan/praktik, dan pantau ketercapaian nilai peserta didik secara mudah dan terstruktur.</p>
+            </div>
+            <div class="hero-actions">
+              <button class="btn btn-gold" onclick="App.navigateTo('journal'); JournalModule.openAddModal();">
+                <span>➕</span> Catat Jurnal Baru
+              </button>
+              <button class="btn btn-outline-gold" onclick="App.navigateTo('grades'); GradesModule.openAddAssignmentModal();">
+                <span>📝</span> Buat Tugas
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Metrics 4-Grid -->
+          <div class="stats-grid-4">
+            <div class="stat-card-modern">
+              <div class="stat-icon-wrapper icon-bg-emerald">📖</div>
+              <div class="stat-content">
+                <div class="stat-num-modern" id="dashTotalJournals">0</div>
+                <div class="stat-label-modern">Total Pertemuan Jurnal</div>
+                <div class="stat-subtext" id="dashJournalsBreakdown">0 SD &bull; 0 SMP</div>
+              </div>
+            </div>
+
+            <div class="stat-card-modern">
+              <div class="stat-icon-wrapper icon-bg-blue">📝</div>
+              <div class="stat-content">
+                <div class="stat-num-modern" id="dashTotalAssignments">0</div>
+                <div class="stat-label-modern">Total Tugas & Kuis</div>
+                <div class="stat-subtext">Hafalan, Praktik & Tulis</div>
+              </div>
+            </div>
+
+            <div class="stat-card-modern">
+              <div class="stat-icon-wrapper icon-bg-amber">👥</div>
+              <div class="stat-content">
+                <div class="stat-num-modern" id="dashTotalStudents">0</div>
+                <div class="stat-label-modern">Siswa Terdaftar</div>
+                <div class="stat-subtext" id="dashStudentsBreakdown">SD & SMP THHK</div>
+              </div>
+            </div>
+
+            <div class="stat-card-modern">
+              <div class="stat-icon-wrapper icon-bg-rose">⭐</div>
+              <div class="stat-content">
+                <div class="stat-num-modern" id="dashGlobalAvg">-</div>
+                <div class="stat-label-modern">Rata-Rata Nilai PAI</div>
+                <div class="stat-subtext">Standar KKTP: 75</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Row: Recent Journal & Quick Jump -->
+          <div class="section-header-row mt-4">
+            <div class="section-title-group">
+              <h3>Catatan Jurnal Mengajar Terkini</h3>
+              <p>Daftar pertemuan KBM terakhir yang telah Anda laksanakan di kelas.</p>
+            </div>
+            <button class="btn btn-outline-primary btn-sm" onclick="App.navigateTo('journal')">
+              Lihat Semua Jurnal &rarr;
+            </button>
+          </div>
+
+          <div id="dashRecentJournalsList">
+            <!-- Rendered by App.renderRecentActivities() -->
+          </div>
+        </section>
+
+        <!-- ================================================================
+             2. JURNAL MENGAJAR VIEW
+             ================================================================ -->
+        <section class="view-section" id="view-journal">
+          <div class="section-header-row">
+            <div class="section-title-group">
+              <h3>Jurnal Mengajar Harian PAI</h3>
+              <p>Catat materi, bab, capaian pembelajaran (TP), kegiatan KBM, dan refleksi kelas.</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-secondary btn-sm" id="exportJournalCsvBtn">
+                <span>📥</span> Ekspor CSV
+              </button>
+              <button class="btn btn-primary" onclick="JournalModule.openAddModal()">
+                <span>➕</span> Tambah Jurnal Baru
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter & Search Bar -->
+          <div class="filter-bar-container">
+            <div class="filter-left-group">
+              <div class="pill-group">
+                <button class="pill-btn journal-level-btn active" data-level="all">⭐ Semua</button>
+                <button class="pill-btn journal-level-btn" data-level="SD">🏫 Jenjang SD</button>
+                <button class="pill-btn journal-level-btn" data-level="SMP">🏛️ Jenjang SMP</button>
+              </div>
+
+              <select class="form-control form-control-sm" id="journalFilterClass" style="min-width: 170px;">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="journalSearchInput" placeholder="Cari materi, bab, atau catatan...">
+            </div>
+          </div>
+
+          <!-- Class pills row -->
+          <div class="class-pills-row mb-3" id="journalClassPillsContainer">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div class="d-flex justify-between align-center mb-3">
+            <span class="badge badge-outline" id="journalFilteredCount">0 Catatan Jurnal</span>
+          </div>
+
+          <!-- Journal Feed Cards List -->
+          <div class="journal-feed" id="journalEntriesList">
+            <!-- Populated dynamically by journal.js -->
+          </div>
+        </section>
+
+        <!-- ================================================================
+             3. TUGAS & BUKU NILAI (GRADEBOOK) VIEW
+             ================================================================ -->
+        <section class="view-section" id="view-grades">
+          <div class="section-header-row">
+            <div class="section-title-group">
+              <h3>Buku Nilai & Manajemen Tugas PAI</h3>
+              <p>Rekap tugas tulis, hafalan surat/doa, praktik sholat/wudhu, dan ujian per kelas.</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-secondary btn-sm" id="exportGradebookCsvBtn">
+                <span>📥</span> Ekspor Excel/CSV
+              </button>
+              <button class="btn btn-primary" onclick="GradesModule.openAddAssignmentModal()">
+                <span>➕</span> Buat Tugas Baru
+              </button>
+            </div>
+          </div>
+
+          <!-- Class Selector & Filter Bar -->
+          <div class="filter-bar-container">
+            <div class="filter-left-group">
+              <div class="pill-group">
+                <button class="pill-btn grade-level-btn active" data-level="all">⭐ Semua</button>
+                <button class="pill-btn grade-level-btn" data-level="SD">🏫 Jenjang SD (Kelas 1-6)</button>
+                <button class="pill-btn grade-level-btn" data-level="SMP">🏛️ Jenjang SMP (Kelas 7-9)</button>
+              </div>
+
+              <label class="font-bold text-sm ml-2">Pilih Kelas:</label>
+              <select class="form-control form-control-sm" id="gradebookClassSelect" style="min-width: 190px; font-weight: bold;">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Class pills row -->
+          <div class="class-pills-row mb-3" id="gradeClassPillsContainer">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Stats Mini Summary for selected class -->
+          <div class="stats-mini-row" id="gradebookStatsContainer">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Interactive Gradebook Matrix Table Card -->
+          <div class="gradebook-card">
+            <div class="d-flex justify-between align-center mb-3">
+              <h4 class="mb-0">📊 Leger Nilai & Ketercapaian Siswa</h4>
+            </div>
+            <div id="gradebookTableContainer">
+              <!-- Rendered by grades.js -->
+            </div>
+          </div>
+
+          <!-- Assignments Cards List for selected class -->
+          <div class="section-header-row mt-4">
+            <div class="section-title-group">
+              <h4>Daftar Tugas & Penilaian di Kelas Ini</h4>
+              <p>Kelola butir tugas, batas pengumpulan, dan lakukan penilaian per tugas.</p>
+            </div>
+            <span class="badge badge-outline" id="assignmentCountBadge">0 Tugas</span>
+          </div>
+
+          <div class="assignments-grid" id="assignmentsListContainer">
+            <!-- Populated dynamically by grades.js -->
+          </div>
+        </section>
+
+        <!-- ================================================================
+             4. BANK MATERI & SILABUS PAI VIEW
+             ================================================================ -->
+        <section class="view-section" id="view-syllabus">
+          <div class="section-header-row">
+            <div class="section-title-group">
+              <h3>Bank Materi & Silabus PAI Kurikulum Merdeka</h3>
+              <p>Referensi materi pokok, Capaian Pembelajaran (TP), dan rekomendasi KBM untuk SD (Fase A, B, C) dan SMP (Fase D) THHK.</p>
+            </div>
+          </div>
+
+          <!-- Syllabus Filter Bar -->
+          <div class="filter-bar-container">
+            <div class="filter-left-group">
+              <select class="form-control form-control-sm" id="syllabusLevelFilter" style="min-width: 140px;">
+                <option value="all">Semua Jenjang</option>
+                <option value="SD">Jenjang SD (Kelas 1-6)</option>
+                <option value="SMP">Jenjang SMP (Kelas 7-9)</option>
+              </select>
+
+              <select class="form-control form-control-sm" id="syllabusAspectFilter" style="min-width: 160px;">
+                <option value="all">Semua Aspek PAI</option>
+                <option value="Al-Qur'an Hadis">Al-Qur'an Hadis</option>
+                <option value="Akidah">Akidah</option>
+                <option value="Akhlak">Akhlak</option>
+                <option value="Fikih">Fikih / Ibadah</option>
+                <option value="Sejarah Islam (Tarikh)">Sejarah Peradaban Islam</option>
+              </select>
+            </div>
+
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="syllabusSearchInput" placeholder="Cari topik materi atau bab...">
+            </div>
+          </div>
+
+          <!-- Syllabus Grid -->
+          <div class="syllabus-grid" id="syllabusGridContainer">
+            <!-- Populated dynamically by app.js -->
+          </div>
+        </section>
+
+        <!-- ================================================================
+             5. DATA SISWA & KELAS VIEW
+             ================================================================ -->
+        <section class="view-section" id="view-students">
+          <div class="section-header-row">
+            <div class="section-title-group">
+              <h3>Data Siswa & Roster Kelas SD & SMP THHK</h3>
+              <p>Kelola data peserta didik, riwayat tugas, dan catatan perkembangan karakter keagamaan.</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm" onclick="StudentsModule.openBatchModal()">
+                <span>⚡</span> Impor Massal Siswa
+              </button>
+              <button class="btn btn-primary" onclick="StudentsModule.openAddModal()">
+                <span>➕</span> Tambah Siswa
+              </button>
+            </div>
+          </div>
+
+          <!-- Student Filter Bar -->
+          <div class="filter-bar-container">
+            <div class="filter-left-group">
+              <div class="pill-group">
+                <button class="pill-btn student-level-btn active" data-level="all">⭐ Semua (45 Siswa)</button>
+                <button class="pill-btn student-level-btn" data-level="SD">🏫 Jenjang SD (30 Siswa)</button>
+                <button class="pill-btn student-level-btn" data-level="SMP">🏛️ Jenjang SMP (15 Siswa)</button>
+              </div>
+
+              <select class="form-control form-control-sm" id="studentFilterClass" style="min-width: 170px;">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="studentSearchInput" placeholder="Cari nama siswa atau NISN...">
+            </div>
+          </div>
+
+          <!-- Class pills row -->
+          <div class="class-pills-row mb-3" id="studentClassPillsContainer">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div class="d-flex justify-between align-center mb-3">
+            <span class="badge badge-outline" id="studentFilteredCount">0 Siswa Terdaftar</span>
+          </div>
+
+          <div class="card-elevated" id="studentsListContainer">
+            <!-- Populated dynamically by students.js -->
+          </div>
+        </section>
+
+        <!-- ================================================================
+             6. LAPORAN & CETAK REKAP VIEW
+             ================================================================ -->
+        <section class="view-section" id="view-reports">
+          <div class="section-header-row no-print">
+            <div class="section-title-group">
+              <h3>Cetak Laporan & Rekapitulasi Resmi</h3>
+              <p>Hasilkan format cetak resmi Jurnal Mengajar dan Leger Nilai lengkap dengan kop surat dan tanda tangan.</p>
+            </div>
+          </div>
+
+          <div class="settings-container no-print" id="printOptionsCard">
+            <!-- Card 1: Cetak Jurnal -->
+            <div class="settings-card">
+              <h4 class="mb-2">📖 Cetak Rekap Jurnal Mengajar</h4>
+              <p class="text-muted text-sm mb-3">Cetak seluruh riwayat pertemuan KBM guru PAI untuk laporan berkala / supervisi.</p>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Pilih Kelas</label>
+                  <select class="form-control" id="printJournalClass">
+                    <!-- Populated dynamically -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Semester</label>
+                  <select class="form-control" id="printJournalSemester">
+                    <option value="all">Semua Semester</option>
+                    <option value="1 (Ganjil)">Semester 1 (Ganjil)</option>
+                    <option value="2 (Genap)">Semester 2 (Genap)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button class="btn btn-primary w-100" id="generateJournalPrintBtn">
+                <span>👁️</span> Pratinjau & Buat Lembar Jurnal
+              </button>
+            </div>
+
+            <!-- Card 2: Cetak Leger Nilai -->
+            <div class="settings-card">
+              <h4 class="mb-2">📝 Cetak Leger & Rekap Nilai</h4>
+              <p class="text-muted text-sm mb-3">Cetak daftar nilai seluruh tugas dan status ketuntasan KKTP per kelas.</p>
+
+              <div class="form-group">
+                <label class="form-label">Pilih Kelas</label>
+                <select class="form-control" id="printGradeClass">
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+
+              <button class="btn btn-gold w-100" id="generateGradePrintBtn">
+                <span>👁️</span> Pratinjau & Buat Lembar Nilai
+              </button>
+            </div>
+          </div>
+
+          <!-- Print Preview Output Card -->
+          <div class="settings-card mt-4 d-none" id="printReportPreviewCard">
+            <div class="d-flex justify-between align-center mb-3 no-print">
+              <h4 class="mb-0">Pratinjau Dokumen Siap Cetak</h4>
+              <button class="btn btn-primary" onclick="App.triggerBrowserPrint()">
+                <span>🖨️</span> Cetak / Simpan ke PDF Sekarang
+              </button>
+            </div>
+
+            <div id="printReportPreviewContainer">
+              <!-- Generated HTML -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             7. PENGATURAN & BACKUP VIEW
+             ================================================================ -->
+        <section class="view-section" id="view-settings">
+          <div class="section-header-row">
+            <div class="section-title-group">
+              <h3>Pengaturan Aplikasi & Backup Data</h3>
+              <p>Sesuaikan identitas sekolah THHK, nama guru, NIP, serta cadangkan database ke file JSON.</p>
+            </div>
+          </div>
+
+          <div class="settings-container">
+            <!-- Profil Sekolah & Guru -->
+            <div class="settings-card">
+              <h4 class="mb-3">🏫 Identitas Sekolah & Guru</h4>
+              <form id="settingsForm">
+                <div class="form-group">
+                  <label class="form-label form-label-req">Nama Sekolah</label>
+                  <input type="text" class="form-control" id="settSchoolName" required>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label form-label-req">Nama Guru Agama Islam</label>
+                    <input type="text" class="form-control" id="settTeacherName" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">NIP / NUPTK Guru</label>
+                    <input type="text" class="form-control" id="settTeacherNip">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Nama Kepala Sekolah</label>
+                    <input type="text" class="form-control" id="settHeadmasterName">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">NIP Kepala Sekolah</label>
+                    <input type="text" class="form-control" id="settHeadmasterNip">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Tahun Ajaran</label>
+                    <input type="text" class="form-control" id="settAcademicYear" placeholder="2024/2025">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Semester Aktif</label>
+                    <select class="form-control" id="settSemester">
+                      <option value="1 (Ganjil)">1 (Ganjil)</option>
+                      <option value="2 (Genap)">2 (Genap)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">KKTP Standar</label>
+                    <input type="number" class="form-control" id="settKktp" min="50" max="100">
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-2">
+                  <span>💾</span> Simpan Pengaturan Identitas
+                </button>
+              </form>
+            </div>
+
+            <!-- Backup & Restore Data -->
+            <div class="settings-card">
+              <h4 class="mb-3">🛡️ Cadangkan & Pulihkan Data</h4>
+              <p class="text-sm text-muted mb-3">Seluruh data jurnal, tugas, siswa, dan nilai tersimpan secara aman di browser Anda. Unduh file cadangan secara berkala agar tidak hilang saat ganti perangkat.</p>
+
+              <div class="form-group">
+                <button class="btn btn-gold w-100" id="exportBackupBtn">
+                  <span>📦</span> Unduh File Backup (.JSON)
+                </button>
+              </div>
+
+              <div class="form-group mt-3">
+                <label class="form-label">Pulihkan dari File Backup</label>
+                <input type="file" id="importBackupFileInput" accept=".json" class="form-control form-control-sm">
+              </div>
+
+              <hr class="my-4" style="border: 0; border-top: 1px solid var(--slate-200);">
+
+              <div class="mt-3">
+                <label class="form-label text-danger">Zona Bahaya</label>
+                <button class="btn btn-secondary text-danger w-100 btn-sm" id="resetDataBtn">
+                  <span>⚠️</span> Reset Data ke Pengaturan Awal
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ================================================================
+       MODALS
+       ================================================================ -->
+
+  <!-- 1. Modal Jurnal Mengajar (Add / Edit) -->
+  <div class="modal-overlay" id="journalModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="journalModalTitle"><span>➕</span> Tambah Jurnal Mengajar Baru</h3>
+        <button class="btn-close-modal" data-close-modal>&times;</button>
+      </div>
+      <form id="journalForm">
+        <div class="modal-body">
+          <input type="hidden" id="journalFormLevel" value="SD">
+
+          <!-- Level Switcher in Modal -->
+          <div class="form-group mb-3">
+            <label class="form-label">Pilih Jenjang Sekolah:</label>
+            <div class="level-toggle-group">
+              <label class="level-toggle-option">
+                <input type="radio" name="journalModalLevel" value="SD" class="journal-modal-level-toggle" checked>
+                <span>🏫 Jenjang SD (Kelas 1 - 6)</span>
+              </label>
+              <label class="level-toggle-option">
+                <input type="radio" name="journalModalLevel" value="SMP" class="journal-modal-level-toggle">
+                <span>🏛️ Jenjang SMP (Kelas 7 - 9)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Preset Bank Materi Quick Filler -->
+          <div class="form-group" style="background: var(--primary-50); padding: 12px; border-radius: var(--radius-md); border: 1px dashed var(--primary-300);">
+            <label class="form-label text-primary">💡 Ambil Langsung dari Bank Materi PAI SD & SMP:</label>
+            <select class="form-control" id="journalSyllabusPreset">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label form-label-req">Kelas Target</label>
+              <select class="form-control" id="journalClassSelect" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label form-label-req">Hari / Tanggal</label>
+              <input type="date" class="form-control" id="journalDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pertemuan Ke-</label>
+              <input type="number" class="form-control" id="journalMeetingNo" min="1" value="1" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Alokasi Waktu / Jam Ke-</label>
+              <input type="text" class="form-control" id="journalTime" placeholder="Contoh: 07:30 - 08:50 (Jam ke 1-2)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Aspek Pembelajaran PAI</label>
+              <select class="form-control" id="journalAspect">
+                <option value="Al-Qur'an Hadis">Al-Qur'an Hadis</option>
+                <option value="Akidah">Akidah</option>
+                <option value="Akhlak">Akhlak</option>
+                <option value="Fikih">Fikih / Ibadah</option>
+                <option value="Sejarah Islam (Tarikh)">Sejarah Peradaban Islam (Tarikh)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Semester</label>
+              <select class="form-control" id="journalSemester">
+                <option value="1 (Ganjil)">1 (Ganjil)</option>
+                <option value="2 (Genap)">2 (Genap)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-req">Bab / Materi Pokok</label>
+            <input type="text" class="form-control" id="journalChapter" placeholder="Contoh: Bab 1: Aku Cinta Al-Qur'an" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-req">Topik / Sub-Materi yang Diajarkan</label>
+            <input type="text" class="form-control" id="journalTopic" placeholder="Contoh: Mengenal Huruf Hijaiyyah dan Harakat Fathah" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Capaian / Tujuan Pembelajaran (TP / KD)</label>
+            <textarea class="form-control" id="journalTp" rows="2" placeholder="Tujuan yang ingin dicapai peserta didik pada pertemuan ini..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-req">Kegiatan Pembelajaran & Metode KBM</label>
+            <textarea class="form-control" id="journalActivity" rows="3" placeholder="Langkah kegiatan pembelajaran di kelas (misal: talaqqi hafalan, diskusi, praktik wudhu/sholat)..." required></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Rekap Kehadiran Siswa</label>
+              <input type="text" class="form-control" id="journalAttendance" placeholder="Contoh: Hadir: Lengkap, Izin: 0, Sakit: 0, Alfa: 0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status Pelaksanaan</label>
+              <select class="form-control" id="journalStatus">
+                <option value="Selesai">Selesai Terlaksana</option>
+                <option value="Tertunda">Tertunda / Diganti</option>
+                <option value="KBM Tambahan">KBM Tambahan / Remedial</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Catatan Refleksi / Kejadian Khusus di Kelas</label>
+            <textarea class="form-control" id="journalNotes" rows="2" placeholder="Catatan perkembangan siswa, kendala, atau hal yang perlu ditindaklanjuti..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal>Batal</button>
+          <button type="submit" class="btn btn-primary">
+            <span>💾</span> Simpan Jurnal Mengajar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Modal Buat / Edit Tugas -->
+  <div class="modal-overlay" id="assignmentModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="assignmentModalTitle"><span>➕</span> Buat Tugas / Penilaian Baru</h3>
+        <button class="btn-close-modal" data-close-modal>&times;</button>
+      </div>
+      <form id="assignmentForm">
+        <div class="modal-body">
+          <!-- Level Switcher in Modal -->
+          <div class="form-group mb-3">
+            <label class="form-label">Pilih Jenjang Sekolah:</label>
+            <div class="level-toggle-group">
+              <label class="level-toggle-option">
+                <input type="radio" name="asgModalLevel" value="SD" class="asg-form-level-toggle" checked>
+                <span>🏫 Jenjang SD</span>
+              </label>
+              <label class="level-toggle-option">
+                <input type="radio" name="asgModalLevel" value="SMP" class="asg-form-level-toggle">
+                <span>🏛️ Jenjang SMP</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label form-label-req">Kelas Target</label>
+              <select class="form-control" id="assignmentClassSelect" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label form-label-req">Kategori Tugas</label>
+              <select class="form-control" id="assignmentCategory" required>
+                <option value="Tugas Tulis">Tugas Tulis / Lembar Kerja</option>
+                <option value="Hafalan">Hafalan Surat Pendek / Doa</option>
+                <option value="Praktik Ibadah">Praktik Sholat / Wudhu</option>
+                <option value="Kuis/UH">Kuis / Ulangan Harian (UH)</option>
+                <option value="Asesmen Sumatif">Asesmen Sumatif (UTS/UAS)</option>
+                <option value="Proyek PAI">Proyek PAI / Portofolio</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-req">Judul Tugas / Penilaian</label>
+            <input type="text" class="form-control" id="assignmentTitle" placeholder="Contoh: Tugas 1: Hafalan Surah An-Nas & Al-Falaq" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Tanggal Diberikan</label>
+              <input type="date" class="form-control" id="assignmentDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Batas Pengumpulan (Due Date)</label>
+              <input type="date" class="form-control" id="assignmentDueDate" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nilai Maksimum</label>
+              <input type="number" class="form-control" id="assignmentMaxScore" value="100" min="10" max="100" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Batas KKTP / KKM</label>
+              <input type="number" class="form-control" id="assignmentKktp" value="75" min="50" max="100" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Deskripsi / Petunjuk Penilaian</label>
+            <textarea class="form-control" id="assignmentDescription" rows="2" placeholder="Instruksi tugas atau rubrik penilaian hafalan/praktik..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal>Batal</button>
+          <button type="submit" class="btn btn-primary">
+            <span>💾</span> Simpan Tugas
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Modal Single Assignment Grading -->
+  <div class="modal-overlay" id="gradingModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3 id="gradingModalTitle"><span>🏆</span> Penilaian Siswa</h3>
+          <div class="text-sm mt-1" id="gradingModalSub"></div>
+        </div>
+        <button class="btn-close-modal" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-between align-center mb-3">
+          <span class="text-sm text-muted">Isi nilai setiap siswa di kolom bawah:</span>
+          <div class="d-flex gap-2">
+            <button class="btn btn-secondary btn-sm" onclick="GradesModule.fillAllScores(100)">Set Semua 100</button>
+            <button class="btn btn-secondary btn-sm" onclick="GradesModule.fillAllScores(85)">Set Semua 85</button>
+            <button class="btn btn-secondary btn-sm" onclick="GradesModule.fillAllScores('')">Kosongkan</button>
+          </div>
+        </div>
+
+        <div id="gradingModalBody">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal>Batal</button>
+        <button type="button" class="btn btn-primary" onclick="GradesModule.saveSingleAssignmentScores()">
+          <span>💾</span> Simpan Seluruh Nilai
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Modal Tambah / Edit Siswa -->
+  <div class="modal-overlay" id="studentModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="studentModalTitle"><span>👤</span> Tambah Data Siswa</h3>
+        <button class="btn-close-modal" data-close-modal>&times;</button>
+      </div>
+      <form id="studentForm">
+        <div class="modal-body">
+          <!-- Level Switcher in Modal -->
+          <div class="form-group mb-3">
+            <label class="form-label">Pilih Jenjang Sekolah:</label>
+            <div class="level-toggle-group">
+              <label class="level-toggle-option">
+                <input type="radio" name="studentModalLevel" value="SD" class="student-form-level-toggle" checked>
+                <span>🏫 Jenjang SD (Kelas 1 - 6)</span>
+              </label>
+              <label class="level-toggle-option">
+                <input type="radio" name="studentModalLevel" value="SMP" class="student-form-level-toggle">
+                <span>🏛️ Jenjang SMP (Kelas 7 - 9)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-req">Kelas Target</label>
+            <select class="form-control" id="studentClassSelect" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">NISN / Nomor Induk</label>
+              <input type="text" class="form-control" id="studentNisn" placeholder="Contoh: 013401">
+            </div>
+            <div class="form-group">
+              <label class="form-label form-label-req">Jenis Kelamin</label>
+              <select class="form-control" id="studentGender" required>
+                <option value="L">Laki-Laki (L)</option>
+                <option value="P">Perempuan (P)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-req">Nama Lengkap Siswa</label>
+            <input type="text" class="form-control" id="studentName" placeholder="Contoh: Ahmad Fauzan" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Catatan Perkembangan Siswa</label>
+            <textarea class="form-control" id="studentNotes" rows="2" placeholder="Catatan minat, kemampuan hafalan/bacaan Qur'an, dsb..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal>Batal</button>
+          <button type="submit" class="btn btn-primary">
+            <span>💾</span> Simpan Data Siswa
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Modal Batch / Impor Massal Siswa -->
+  <div class="modal-overlay" id="batchStudentModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3><span>⚡</span> Impor Massal Daftar Siswa</h3>
+        <button class="btn-close-modal" data-close-modal>&times;</button>
+      </div>
+      <form id="batchStudentForm">
+        <div class="modal-body">
+          <!-- Level Switcher in Modal -->
+          <div class="form-group mb-3">
+            <label class="form-label">Pilih Jenjang Sekolah:</label>
+            <div class="level-toggle-group">
+              <label class="level-toggle-option">
+                <input type="radio" name="batchModalLevel" value="SD" class="batch-form-level-toggle" checked>
+                <span>🏫 Jenjang SD</span>
+              </label>
+              <label class="level-toggle-option">
+                <input type="radio" name="batchModalLevel" value="SMP" class="batch-form-level-toggle">
+                <span>🏛️ Jenjang SMP</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-req">Pilih Kelas Target</label>
+            <select class="form-control" id="batchStudentClassSelect" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-req">Tempel (Paste) Daftar Nama Siswa</label>
+            <p class="form-hint mb-2">Tuliskan 1 siswa per baris. Anda juga bisa menyalin langsung dari Excel (format: Nama atau NISN, Nama, L/P):</p>
+            <textarea class="form-control" id="batchStudentNames" rows="8" placeholder="Ahmad Fauzan&#10;Aisyah Putri Azzahra&#10;Bilal Muhammad&#10;Fathimah Zahra" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal>Batal</button>
+          <button type="submit" class="btn btn-primary">
+            <span>🚀</span> Proses Impor Siswa
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. Universal Detail / Profile / Single Journal Print Modal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3><span>📄</span> Lembar Informasi & Pratinjau</h3>
+        <button class="btn-close-modal" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body" id="detailModalContent">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal>Tutup</button>
+        <button type="button" class="btn btn-primary" onclick="App.triggerBrowserPrint()">
+          <span>🖨️</span> Cetak Lembar Ini
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/journal.js"></script>
+  <script src="js/grades.js"></script>
+  <script src="js/students.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
