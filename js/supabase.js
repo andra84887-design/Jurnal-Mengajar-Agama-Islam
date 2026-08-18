@@ -12,10 +12,15 @@ const SupabaseService = {
   getConfig() {
     try {
       const data = localStorage.getItem(SUPABASE_CONFIG_KEY);
-      return data ? JSON.parse(data) : { url: "", anonKey: "", autoSync: true };
+      if (data) return JSON.parse(data);
     } catch (e) {
-      return { url: "", anonKey: "", autoSync: true };
+      console.error(e);
     }
+    return { 
+      url: "https://jvlqmzbzmupizagyjzer.supabase.co", 
+      anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2bHFtemJ6bXVwaXphZ3lqemVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwMDc1NDksImV4cCI6MjEwMjU4MzU0OX0.dWu7mz3PgeYSMbeo2upFfopOQOI7SLmvMWCxim7-Yzc", 
+      autoSync: true 
+    };
   },
 
   saveConfig(config) {

@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(node --check js/app.js)",
+      "Shell(node --check js/data.js)",
+      "Shell(node --check js/storage.js)",
+      "Shell(node --check js/supabase.js)",
+      "Shell(node --check js/journal.js)",
+      "Shell(node --check js/grades.js)",
+      "Shell(node --check js/students.js)",
+      "Shell(node --check app.js)",
+      "Shell(node --check data.js)",
+      "Shell(node --check storage.js)",
+      "Shell(node --check supabase.js)",
+      "Shell(node --check journal.js)",
+      "Shell(node --check grades.js)",
+      "Shell(node --check students.js)",
+      "Shell(node -e \" // Simulasi renderSyllabusBrowser filter + idx bug const PAI_SYLLABUS = [ {classId:'sd-1', level:'SD', chapter:'Bab1', topic:'A', aspect:'Akidah'}, {classId:'sd-1', level:'SD', chapter:'Bab2', topic:'B', aspect:'Fikih'}, {classId:'sd-1', level:'SD', chapter:'Bab3', topic:'C', aspect:'Akidah'}, {classId:'smp-7', level:'SMP', chapter:'Bab1', topic:'D', aspect:'Akidah'} ]; // Filter: level=SMP let list = PAI_SYLLABUS.filter(item => item.level === 'SMP'); // idx yang dirender = index pada list terfilter (0) const idx = 0; console.log('Filtered list idx 0 =>', list[0].topic); console.log('PAI_SYLLABUS[idx] (yang dipakai) =>', PAI_SYLLABUS[idx].topic); console.log('BUG TERKONFIRMASI:', PAI_SYLLABUS[idx].topic !== list[0].topic); \")"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}
