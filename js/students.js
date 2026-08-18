@@ -23,7 +23,7 @@ const StudentsModule = {
     const batchClassSelect = document.getElementById("batchStudentClassSelect");
 
     if (filterSelect) {
-      filterSelect.innerHTML = `<option value="all">Semua Kelas</option>` +
+      filterSelect.innerHTML = `<option value="all">Semua Kelas (SD & SMP)</option>` +
         classes.map(c => `<option value="${c.id}">[${c.level}] ${c.name}</option>`).join("");
     }
 
@@ -244,14 +244,19 @@ const StudentsModule = {
     }
 
     if (students.length === 0) {
+      const isSmp = this.currentFilterLevel === "SMP" || (this.currentFilterClass && this.currentFilterClass.startsWith("smp"));
       container.innerHTML = `
         <div class="empty-state py-4">
-          <div class="empty-icon">👥</div>
-          <h3>Belum Ada Data Siswa di Pilihan Ini</h3>
-          <p>Tambahkan siswa secara manual atau tempel daftar nama secara massal.</p>
-          <div class="mt-3">
-            <button class="btn btn-primary btn-sm mr-2" onclick="StudentsModule.openAddModal()">+ Tambah Siswa</button>
-            <button class="btn btn-outline-primary btn-sm" onclick="StudentsModule.openBatchModal()">⚡ Impor Massal Siswa</button>
+          <div class="empty-icon">${isSmp ? '🏛️' : '👥'}</div>
+          <h3>Belum Ada Data Siswa ${isSmp ? 'Jenjang SMP' : (this.currentFilterLevel === 'SD' ? 'Jenjang SD' : '')}</h3>
+          <p>Tambahkan siswa secara manual atau gunakan tombol <strong>"⚡ Impor Massal Siswa"</strong> untuk menempel seluruh daftar nama siswa sekaligus.</p>
+          <div class="mt-3 d-flex gap-2 justify-center">
+            <button class="btn btn-primary" onclick="StudentsModule.openAddModal('${isSmp ? 'SMP' : 'SD'}')">
+              <span>➕</span> Tambah Siswa ${isSmp ? 'SMP' : ''}
+            </button>
+            <button class="btn btn-gold" onclick="StudentsModule.openBatchModal('${isSmp ? 'SMP' : 'SD'}')">
+              <span>⚡</span> Impor Massal Siswa ${isSmp ? 'SMP' : ''}
+            </button>
           </div>
         </div>
       `;
@@ -319,13 +324,13 @@ const StudentsModule = {
                   <td class="text-center">
                     <div class="action-btns-group">
                       <button class="btn-icon" title="Lihat Nilai & Rapor Mini" onclick="StudentsModule.viewStudentProfile('${s.id}')">
-                        <i class="icon-file-text"></i> 👁️
+                        👁️
                       </button>
                       <button class="btn-icon" title="Edit Siswa" onclick="StudentsModule.openEditModal('${s.id}')">
-                        <i class="icon-edit"></i> ✏️
+                        ✏️
                       </button>
                       <button class="btn-icon text-danger" title="Hapus Siswa" onclick="StudentsModule.deleteStudent('${s.id}')">
-                        <i class="icon-trash"></i> 🗑️
+                        🗑️
                       </button>
                     </div>
                   </td>
@@ -338,13 +343,16 @@ const StudentsModule = {
     `;
   },
 
-  openAddModal() {
+  openAddModal(presetLevel = null) {
     this.editingStudentId = null;
-    document.getElementById("studentModalTitle").innerHTML = `<span>👤</span> Tambah Data Siswa`;
+    document.getElementById("studentModalTitle").innerHTML = `<span>👤</span> Tambah Data Siswa Baru`;
     document.getElementById("studentForm").reset();
 
-    // Default to current level
-    const levelToUse = this.currentFilterLevel === "SMP" ? "SMP" : "SD";
+    let levelToUse = presetLevel || (this.currentFilterLevel === "SMP" ? "SMP" : "SD");
+    if (this.currentFilterClass && this.currentFilterClass.startsWith("smp")) {
+      levelToUse = "SMP";
+    }
+
     const radioEl = document.querySelector(`input[name="studentModalLevel"][value="${levelToUse}"]`);
     if (radioEl) radioEl.checked = true;
     this.filterFormClassSelect(levelToUse, "studentClassSelect");
@@ -357,22 +365,22 @@ const StudentsModule = {
   },
 
   openEditModal(id) {
-    const students = StorageService.getStudents();
-    const s = students.find(item => item.id === id);
-    if (!s) return;
+    const list = StorageService.getStudents();
+    const student = list.find(s => s.id === id);
+    if (!student) return;
 
     this.editingStudentId = id;
     document.getElementById("studentModalTitle").innerHTML = `<span>✏️</span> Edit Data Siswa`;
 
-    const radioEl = document.querySelector(`input[name="studentModalLevel"][value="${s.level || 'SD'}"]`);
+    const radioEl = document.querySelector(`input[name="studentModalLevel"][value="${student.level || 'SD'}"]`);
     if (radioEl) radioEl.checked = true;
-    this.filterFormClassSelect(s.level || "SD", "studentClassSelect");
+    this.filterFormClassSelect(student.level || "SD", "studentClassSelect");
 
-    document.getElementById("studentClassSelect").value = s.classId || "";
-    document.getElementById("studentNisn").value = s.nisn || "";
-    document.getElementById("studentName").value = s.name || "";
-    document.getElementById("studentGender").value = s.gender || "L";
-    document.getElementById("studentNotes").value = s.notes || "";
+    document.getElementById("studentClassSelect").value = student.classId;
+    document.getElementById("studentName").value = student.name;
+    document.getElementById("studentNisn").value = (student.nisn !== "-" ? student.nisn : "") || "";
+    document.getElementById("studentGender").value = student.gender || "L";
+    document.getElementById("studentNotes").value = (student.notes !== "-" ? student.notes : "") || "";
 
     App.openModal("studentModal");
   },
@@ -449,27 +457,64 @@ const StudentsModule = {
     if (window.GradesModule) GradesModule.render();
   },
 
-  openBatchModal() {
+  openBatchModal(presetLevel = null) {
     document.getElementById("batchStudentForm").reset();
-    const levelToUse = this.currentFilterLevel === "SMP" ? "SMP" : "SD";
+
+    let levelToUse = presetLevel || (this.currentFilterLevel === "SMP" ? "SMP" : "SD");
+    if (this.currentFilterClass && this.currentFilterClass.startsWith("smp")) {
+      levelToUse = "SMP";
+    }
+
     const radioEl = document.querySelector(`input[name="batchModalLevel"][value="${levelToUse}"]`);
     if (radioEl) radioEl.checked = true;
     this.filterFormClassSelect(levelToUse, "batchStudentClassSelect");
 
+    if (this.currentFilterClass !== "all") {
+      const select = document.getElementById("batchStudentClassSelect");
+      if (select) select.value = this.currentFilterClass;
+    }
+
     App.openModal("batchStudentModal");
+  },
+
+  setBatchModalLevel(level) {
+    const radioEl = document.querySelector(`input[name="batchModalLevel"][value="${level}"]`);
+    if (radioEl) radioEl.checked = true;
+    this.filterFormClassSelect(level, "batchStudentClassSelect");
+  },
+
+  insertBatchSample(type = 'SMP') {
+    const textarea = document.getElementById("batchStudentNames");
+    if (!textarea) return;
+
+    if (type === 'SMP') {
+      this.setBatchModalLevel('SMP');
+      textarea.value = `007701, Aditya Pratama, L\n007702, Farah Diba Nurhaliza, P\n007703, Muhammad Rizky, L\n007704, Salma Salshabila, P\n007705, Yusuf Al-Farisi, L`;
+      App.showToast("Contoh format daftar siswa SMP dimuat!", "info");
+    } else {
+      this.setBatchModalLevel('SD');
+      textarea.value = `013401, Ahmad Fauzan, L\n013402, Aisyah Putri Azzahra, P\n013403, Bilal Muhammad, L\n013404, Fathimah Zahra, P\n013405, Kenzo Al-Ghifari, L`;
+      App.showToast("Contoh format daftar siswa SD dimuat!", "info");
+    }
   },
 
   saveBatchStudents() {
     const classId = document.getElementById("batchStudentClassSelect").value;
     const rawText = document.getElementById("batchStudentNames").value.trim();
 
-    if (!classId || !rawText) {
-      App.showToast("Pilih kelas dan tempel daftar nama siswa!", "warning");
+    if (!classId) {
+      App.showToast("Silakan pilih kelas target terlebih dahulu!", "warning");
+      return;
+    }
+
+    if (!rawText) {
+      App.showToast("Tempel (paste) daftar nama siswa di kotak teks!", "warning");
       return;
     }
 
     const classes = StorageService.getClasses();
     const cls = classes.find(c => c.id === classId);
+    const targetLevel = cls ? cls.level : (classId.startsWith("smp") ? "SMP" : "SD");
 
     const lines = rawText.split("\n").map(l => l.trim()).filter(l => l.length > 0);
     if (lines.length === 0) {
@@ -481,36 +526,54 @@ const StudentsModule = {
     let addedCount = 0;
 
     lines.forEach((line, index) => {
-      let parts = line.includes("\t") ? line.split("\t") : (line.includes(",") ? line.split(",") : [line]);
+      // Split by tab, comma, or semicolon
+      let parts = line.includes("\t") ? line.split("\t") : (line.includes(",") ? line.split(",") : (line.includes(";") ? line.split(";") : [line]));
+      parts = parts.map(p => p.trim()).filter(p => p.length > 0);
+
       let name = "";
       let nisn = "-";
       let gender = "L";
 
       if (parts.length === 1) {
-        name = parts[0].trim();
+        // Hanya Nama
+        name = parts[0];
       } else if (parts.length === 2) {
-        if (/^\d+$/.test(parts[0].trim())) {
-          nisn = parts[0].trim();
-          name = parts[1].trim();
+        // Bisa: (NISN, Nama) atau (Nama, Gender)
+        if (/^\d+$/.test(parts[0])) {
+          nisn = parts[0];
+          name = parts[1];
         } else {
-          name = parts[0].trim();
-          gender = (parts[1].trim().toUpperCase() === "P" || parts[1].trim().toUpperCase() === "PEREMPUAN") ? "P" : "L";
+          name = parts[0];
+          const g = parts[1].toUpperCase();
+          gender = (g === "P" || g === "PEREMPUAN" || g === "WANITA") ? "P" : "L";
         }
       } else {
-        nisn = parts[0].trim();
-        name = parts[1].trim();
-        gender = (parts[2].trim().toUpperCase() === "P" || parts[2].trim().toUpperCase() === "PEREMPUAN") ? "P" : "L";
+        // (NISN, Nama, Gender) atau sebaliknya
+        if (/^\d+$/.test(parts[0])) {
+          nisn = parts[0];
+          name = parts[1];
+          const g = parts[2].toUpperCase();
+          gender = (g === "P" || g === "PEREMPUAN" || g === "WANITA") ? "P" : "L";
+        } else {
+          name = parts[0];
+          nisn = parts[1];
+          const g = parts[2].toUpperCase();
+          gender = (g === "P" || g === "PEREMPUAN" || g === "WANITA") ? "P" : "L";
+        }
       }
+
+      // Bersihkan karakter angka urutan di depan nama (misal: "1. Ahmad" -> "Ahmad")
+      name = name.replace(/^\d+[\.\-\)]\s*/, '').trim();
 
       if (name) {
         const newStudent = {
           id: "s-" + Date.now().toString(36) + Math.random().toString(36).substr(2, 4) + index,
           classId: classId,
-          level: cls ? cls.level : "SD",
+          level: targetLevel,
           name: name,
-          nisn: nisn,
+          nisn: nisn || "-",
           gender: gender,
-          notes: "Diimpor massal"
+          notes: `Diimpor massal ke ${cls ? cls.name : classId}`
         };
         students.push(newStudent);
         if (window.SupabaseService) SupabaseService.saveStudentRemote(newStudent);
@@ -520,7 +583,7 @@ const StudentsModule = {
 
     StorageService.saveStudents(students);
     App.closeModal("batchStudentModal");
-    App.showToast(`Berhasil menambahkan ${addedCount} siswa baru ke kelas ini!`, "success");
+    App.showToast(`Berhasil menambahkan ${addedCount} siswa baru ke ${cls ? cls.name : 'kelas'}!`, "success");
     this.renderClassFilterPills();
     this.render();
     App.updateDashboardStats();
@@ -528,107 +591,128 @@ const StudentsModule = {
   },
 
   viewStudentProfile(studentId) {
-    const students = StorageService.getStudents();
-    const s = students.find(item => item.id === studentId);
-    if (!s) return;
+    const list = StorageService.getStudents();
+    const student = list.find(s => s.id === studentId);
+    if (!student) return;
 
     const classes = StorageService.getClasses();
-    const cls = classes.find(c => c.id === s.classId) || { name: s.classId, level: s.level };
-    const assignments = StorageService.getAssignments().filter(a => a.classId === s.classId);
+    const cls = classes.find(c => c.id === student.classId) || { name: student.classId, level: student.level };
+    const assignments = StorageService.getAssignments().filter(a => a.classId === student.classId);
+    const settings = StorageService.getSettings();
 
     let totalScore = 0;
-    let count = 0;
-    const taskRows = assignments.map((a, idx) => {
-      const scoreVal = a.scores ? a.scores[s.id] : undefined;
-      const isGraded = scoreVal !== undefined && scoreVal !== "" && !isNaN(scoreVal);
-      if (isGraded) {
-        totalScore += Number(scoreVal);
-        count++;
+    let gradedCount = 0;
+
+    let assignmentsRows = assignments.map((a, idx) => {
+      const score = (a.scores && a.scores[student.id] !== undefined) ? a.scores[student.id] : "";
+      if (score !== "" && !isNaN(score)) {
+        totalScore += Number(score);
+        gradedCount++;
       }
 
-      const isPass = isGraded && Number(scoreVal) >= (a.kktp || 75);
-      const statusBadge = isGraded 
-        ? (isPass ? `<span class="badge badge-success">Tuntas</span>` : `<span class="badge badge-danger">Belum Tuntas</span>`) 
+      const isPass = score !== "" && Number(score) >= (a.kktp || 75);
+      const statusBadge = score !== "" 
+        ? (isPass ? `<span class="badge badge-success">Tuntas</span>` : `<span class="badge badge-danger">Remedial</span>`) 
         : `<span class="badge badge-outline">Belum Dinilai</span>`;
 
       return `
         <tr>
           <td class="text-center">${idx + 1}</td>
-          <td>
-            <strong>${this.escapeHtml(a.title)}</strong>
-            <div class="text-xs text-muted">${a.category} &bull; Batas: ${a.dueDate || '-'}</div>
-          </td>
-          <td class="text-center">${a.kktp || 75}</td>
-          <td class="text-center font-bold ${isGraded ? (isPass ? 'text-success' : 'text-danger') : 'text-muted'}">
-            ${isGraded ? scoreVal : '-'}
+          <td><strong>${this.escapeHtml(a.title)}</strong></td>
+          <td><span class="badge badge-mini">${a.category}</span></td>
+          <td class="text-center">${a.dueDate || a.date}</td>
+          <td class="text-center font-bold ${score !== '' ? (isPass ? 'text-success' : 'text-danger') : 'text-muted'}">
+            ${score !== "" ? score : "-"}
           </td>
           <td class="text-center">${statusBadge}</td>
         </tr>
       `;
     }).join("");
 
-    const avg = count > 0 ? (totalScore / count).toFixed(1) : "-";
+    const avgScore = gradedCount > 0 ? (totalScore / gradedCount).toFixed(1) : "-";
+    const defaultKktp = settings.defaultKktp || 75;
+    const isOverallPass = avgScore !== "-" && Number(avgScore) >= defaultKktp;
 
     const profileHtml = `
-      <div class="student-profile-sheet">
-        <div class="student-profile-header mb-4">
-          <div class="d-flex align-center gap-3">
-            <div class="student-avatar-big ${s.gender === 'L' ? 'bg-l' : 'bg-p'}">
-              ${s.gender === 'L' ? '👦' : '👧'}
-            </div>
-            <div>
-              <h2 class="mb-1">${this.escapeHtml(s.name)}</h2>
-              <div class="d-flex gap-2">
-                <span class="badge ${cls.level === 'SD' ? 'badge-sd' : 'badge-smp'}">${cls.level}</span>
-                <span class="badge badge-outline">${cls.name}</span>
-                <span class="badge-gender ${s.gender === 'L' ? 'badge-l' : 'badge-p'}">${s.gender === 'L' ? 'Laki-Laki' : 'Perempuan'}</span>
-                <span class="font-mono text-xs text-muted">NISN: ${s.nisn}</span>
-              </div>
-            </div>
+      <div class="print-official-preview">
+        <div class="kop-surat text-center mb-3">
+          <h4 class="school-title mb-0">${settings.schoolName || 'SEKOLAH THHK'}</h4>
+          <h2 class="document-title">LEMBAR PERKEMBANGAN & RAPOR MINI PAI</h2>
+          <h5 class="subject-title">MATA PELAJARAN: PENDIDIKAN AGAMA ISLAM & BUDI PEKERTI</h5>
+          <div class="header-divider"></div>
+        </div>
+
+        <table class="table-info-meta mb-3">
+          <tr>
+            <td width="20%"><strong>Nama Siswa</strong></td>
+            <td width="30%">: <strong>${this.escapeHtml(student.name)}</strong></td>
+            <td width="20%"><strong>NISN / No. Induk</strong></td>
+            <td width="30%">: ${student.nisn || '-'}</td>
+          </tr>
+          <tr>
+            <td><strong>Jenjang & Kelas</strong></td>
+            <td>: ${cls.level} / ${cls.name}</td>
+            <td><strong>Jenis Kelamin</strong></td>
+            <td>: ${student.gender === 'L' ? 'Laki-Laki (L)' : 'Perempuan (P)'}</td>
+          </tr>
+          <tr>
+            <td><strong>Tahun Ajaran</strong></td>
+            <td>: ${settings.academicYear}</td>
+            <td><strong>Semester</strong></td>
+            <td>: ${settings.semester}</td>
+          </tr>
+          <tr>
+            <td><strong>Rata-Rata Nilai PAI</strong></td>
+            <td>: <strong class="${isOverallPass ? 'text-success' : 'text-danger'} font-lg">${avgScore}</strong> (KKTP: ${defaultKktp})</td>
+            <td><strong>Status Ketercapaian</strong></td>
+            <td>: <strong>${avgScore !== '-' ? (isOverallPass ? '✅ TUNTAS' : '⚠️ BELUM TUNTAS') : '-'}</strong></td>
+          </tr>
+        </table>
+
+        <div class="detail-block mb-3">
+          <div class="detail-block-title">REKAPITULASI TUGAS, HAFALAN & ASESMEN PAI</div>
+          <div class="detail-block-body p-0">
+            <table class="table table-bordered table-sm mb-0">
+              <thead>
+                <tr>
+                  <th width="35" class="text-center">No</th>
+                  <th>Judul Tugas / Materi Penilaian</th>
+                  <th width="120">Kategori</th>
+                  <th width="90" class="text-center">Tanggal</th>
+                  <th width="65" class="text-center">Nilai</th>
+                  <th width="90" class="text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${assignmentsRows || `<tr><td colspan="6" class="text-center text-muted py-3">Belum ada data tugas untuk kelas ini.</td></tr>`}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div class="stats-grid-4 mb-4">
-          <div class="stat-card-modern">
-            <div class="stat-icon-wrapper icon-bg-emerald">📊</div>
-            <div class="stat-content">
-              <div class="stat-num-modern text-emerald">${avg}</div>
-              <div class="stat-label-modern">Rata-Rata Nilai PAI</div>
-            </div>
-          </div>
-          <div class="stat-card-modern">
-            <div class="stat-icon-wrapper icon-bg-blue">📝</div>
-            <div class="stat-content">
-              <div class="stat-num-modern text-blue">${count}/${assignments.length}</div>
-              <div class="stat-label-modern">Tugas Diselesaikan</div>
-            </div>
+        <div class="detail-block mb-4">
+          <div class="detail-block-title">CATATAN KHUSUS & PERKEMBANGAN KARAKTER KEAGAMAAN</div>
+          <div class="detail-block-body">
+            ${this.escapeHtml(student.notes || 'Siswa menunjukkan motivasi belajar dan akhlak yang baik dalam mengikuti pembelajaran PAI.')}
           </div>
         </div>
 
-        <h4 class="mb-2">🏆 Rincian Tugas & Penilaian PAI:</h4>
-        <div class="table-responsive mb-3">
-          <table class="table table-bordered table-sm">
-            <thead>
-              <tr>
-                <th width="40">No</th>
-                <th>Tugas / Asesmen</th>
-                <th width="80" class="text-center">KKTP</th>
-                <th width="80" class="text-center">Nilai</th>
-                <th width="110" class="text-center">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${taskRows || `<tr><td colspan="5" class="text-center text-muted py-3">Belum ada tugas untuk kelas ini.</td></tr>`}
-            </tbody>
-          </table>
-        </div>
-
-        ${s.notes ? `
-          <div class="student-notes-panel mt-3">
-            <strong>📝 Catatan Khusus Guru:</strong>
-            <p class="mb-0 mt-1">${this.escapeHtml(s.notes)}</p>
+        <div class="signature-section mt-5">
+          <div class="sig-col">
+            <p>Mengetahui,</p>
+            <p class="sig-title">Kepala Sekolah THHK</p>
+            <div class="sig-space"></div>
+            <p class="sig-name"><strong>${settings.headmasterName || 'Kepala Sekolah THHK'}</strong></p>
+            <p class="sig-nip">NIP: ${settings.headmasterNip || '-'}</p>
           </div>
-        ` : ''}
+          <div class="sig-col text-right">
+            <p>Guru Mata Pelajaran,</p>
+            <p class="sig-title">Pendidikan Agama Islam</p>
+            <div class="sig-space"></div>
+            <p class="sig-name"><strong>${settings.teacherName || 'Guru PAI THHK'}</strong></p>
+            <p class="sig-nip">NIP: ${settings.teacherNip || '-'}</p>
+          </div>
+        </div>
       </div>
     `;
 

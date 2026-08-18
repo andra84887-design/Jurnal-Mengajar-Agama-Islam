@@ -528,6 +528,18 @@ button, input, select, textarea {
   box-shadow: 0 2px 6px rgba(6, 78, 59, 0.25);
 }
 
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12.5px;
+}
+
+.btn-xs {
+  padding: 3px 8px;
+  font-size: 11.5px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
   box-shadow: 0 4px 10px rgba(6, 78, 59, 0.35);

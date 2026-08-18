@@ -56,7 +56,13 @@ const StorageService = {
   getClasses() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.CLASSES);
-      return data ? JSON.parse(data) : DEFAULT_CLASSES;
+      let list = data ? JSON.parse(data) : DEFAULT_CLASSES;
+      // Pastikan kelas SMP selalu ada jika data lama di browser hanya berisi kelas SD
+      if (!Array.isArray(list) || list.length < DEFAULT_CLASSES.length) {
+        list = DEFAULT_CLASSES;
+        this.saveClasses(list);
+      }
+      return list;
     } catch (e) {
       console.error("Error reading classes", e);
       return DEFAULT_CLASSES;

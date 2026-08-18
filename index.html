@@ -936,28 +936,38 @@
           <div class="form-group mb-3">
             <label class="form-label">Pilih Jenjang Sekolah:</label>
             <div class="level-toggle-group">
-              <label class="level-toggle-option">
+              <label class="level-toggle-option" onclick="StudentsModule.setBatchModalLevel('SD')">
                 <input type="radio" name="batchModalLevel" value="SD" class="batch-form-level-toggle" checked>
-                <span>🏫 Jenjang SD</span>
+                <span>🏫 Jenjang SD (Kelas 1 - 6)</span>
               </label>
-              <label class="level-toggle-option">
+              <label class="level-toggle-option" onclick="StudentsModule.setBatchModalLevel('SMP')">
                 <input type="radio" name="batchModalLevel" value="SMP" class="batch-form-level-toggle">
-                <span>🏛️ Jenjang SMP</span>
+                <span>🏛️ Jenjang SMP (Kelas 7 - 9)</span>
               </label>
             </div>
           </div>
 
           <div class="form-group">
             <label class="form-label form-label-req">Pilih Kelas Target</label>
-            <select class="form-control" id="batchStudentClassSelect" required>
+            <select class="form-control font-bold" id="batchStudentClassSelect" required>
               <!-- Populated dynamically -->
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label form-label-req">Tempel (Paste) Daftar Nama Siswa</label>
-            <p class="form-hint mb-2">Tuliskan 1 siswa per baris. Anda juga bisa menyalin langsung dari Excel (format: Nama atau NISN, Nama, L/P):</p>
-            <textarea class="form-control" id="batchStudentNames" rows="8" placeholder="Ahmad Fauzan&#10;Aisyah Putri Azzahra&#10;Bilal Muhammad&#10;Fathimah Zahra" required></textarea>
+            <div class="d-flex justify-between align-center mb-1 flex-wrap gap-1">
+              <label class="form-label form-label-req mb-0">Tempel (Paste) Daftar Nama Siswa</label>
+              <div class="d-flex gap-1">
+                <button type="button" class="btn btn-xs btn-outline-primary" onclick="StudentsModule.insertBatchSample('SMP')">
+                  📝 Contoh SMP
+                </button>
+                <button type="button" class="btn btn-xs btn-outline-primary" onclick="StudentsModule.insertBatchSample('SD')">
+                  📝 Contoh SD
+                </button>
+              </div>
+            </div>
+            <p class="form-hint mb-2">Tulis 1 siswa per baris. Format yang didukung: <code>NISN, Nama, L/P</code> atau langsung salin dari Excel:</p>
+            <textarea class="form-control font-mono text-xs" id="batchStudentNames" rows="8" placeholder="007701, Aditya Pratama, L&#10;007702, Farah Diba Nurhaliza, P&#10;007703, Muhammad Rizky, L&#10;007704, Salma Salshabila, P" required></textarea>
           </div>
         </div>
         <div class="modal-footer">
