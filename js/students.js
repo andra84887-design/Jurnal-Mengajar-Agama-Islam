@@ -489,11 +489,11 @@ const StudentsModule = {
 
     if (type === 'SMP') {
       this.setBatchModalLevel('SMP');
-      textarea.value = `007701, Aditya Pratama, L\n007702, Farah Diba Nurhaliza, P\n007703, Muhammad Rizky, L\n007704, Salma Salshabila, P\n007705, Yusuf Al-Farisi, L`;
+      textarea.value = "007701, Aditya Pratama, L\n007702, Farah Diba Nurhaliza, P\n007703, Muhammad Rizky, L\n007704, Salma Salshabila, P\n007705, Yusuf Al-Farisi, L";
       App.showToast("Contoh format daftar siswa SMP dimuat!", "info");
     } else {
       this.setBatchModalLevel('SD');
-      textarea.value = `013401, Ahmad Fauzan, L\n013402, Aisyah Putri Azzahra, P\n013403, Bilal Muhammad, L\n013404, Fathimah Zahra, P\n013405, Kenzo Al-Ghifari, L`;
+      textarea.value = "013401, Ahmad Fauzan, L\n013402, Aisyah Putri Azzahra, P\n013403, Bilal Muhammad, L\n013404, Fathimah Zahra, P\n013405, Kenzo Al-Ghifari, L";
       App.showToast("Contoh format daftar siswa SD dimuat!", "info");
     }
   },

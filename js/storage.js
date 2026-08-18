@@ -38,6 +38,15 @@ const StorageService = {
     this.saveAssignments([]);
   },
 
+  // Reset seluruh data kembali ke pengaturan awal
+  resetToDefault() {
+    this.saveSettings(DEFAULT_SETTINGS);
+    this.saveClasses(DEFAULT_CLASSES);
+    this.saveStudents([]);
+    this.saveJournal([]);
+    this.saveAssignments([]);
+  },
+
   // Settings
   getSettings() {
     try {

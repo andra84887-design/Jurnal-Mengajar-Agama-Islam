@@ -274,7 +274,9 @@ const App = {
     const container = document.getElementById("dashRecentJournalsList");
     if (!container) return;
 
-    const journal = StorageService.getJournal().slice(0, 5);
+    const journal = StorageService.getJournal()
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 5);
     const classes = StorageService.getClasses();
     const classMap = Object.fromEntries(classes.map(c => [c.id, c]));
 
@@ -300,7 +302,7 @@ const App = {
             <div class="dash-activity-title">
               <strong>${cls.name}</strong> &bull; Pertemuan ${item.meetingNo || 1} &bull; <span class="text-primary">${item.aspect}</span>
             </div>
-            <div class="dash-activity-topic">${item.topic}</div>
+            <div class="dash-activity-topic">${item.topic || item.chapter || ''}</div>
             <div class="dash-activity-time text-xs text-muted">
               📅 ${item.date} &bull; ${item.time || ''}
             </div>

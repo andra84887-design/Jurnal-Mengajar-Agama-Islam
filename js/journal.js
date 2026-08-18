@@ -100,16 +100,20 @@ const JournalModule = {
     if (!presetSelect) return;
 
     let syllabusList = PAI_SYLLABUS;
+    let displayList = syllabusList;
     if (classId) {
-      syllabusList = PAI_SYLLABUS.filter(item => item.classId === classId);
+      displayList = syllabusList.filter(item => item.classId === classId);
     }
 
     presetSelect.innerHTML = `<option value="">-- Pilih dari Bank Materi PAI (Otomatis Isi Form) --</option>` +
-      syllabusList.map((item, idx) => `
-        <option value="${item.classId}|${idx}">
+      displayList.map(item => {
+        const globalIdx = syllabusList.indexOf(item);
+        return `
+        <option value="${globalIdx}">
           [${item.level} - ${item.aspect}] ${item.chapter} : ${item.topic.substring(0, 45)}...
         </option>
-      `).join("");
+      `;
+      }).join("");
   },
 
   bindEvents() {
@@ -172,9 +176,8 @@ const JournalModule = {
     if (presetSelect) {
       presetSelect.addEventListener("change", (e) => {
         if (!e.target.value) return;
-        const [cId, idx] = e.target.value.split("|");
-        const syllabusItems = PAI_SYLLABUS.filter(item => item.classId === cId);
-        const item = syllabusItems[idx] || PAI_SYLLABUS[idx];
+        const idx = parseInt(e.target.value, 10);
+        const item = PAI_SYLLABUS[idx];
         if (item) {
           if (!document.getElementById("journalClassSelect").value) {
             document.getElementById("journalClassSelect").value = item.classId;
