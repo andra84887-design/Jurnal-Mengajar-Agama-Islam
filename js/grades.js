@@ -185,9 +185,15 @@ const GradesModule = {
       `<option value="${c.id}" data-level="${c.level}">[${c.level}] ${c.name}</option>`
     ).join("");
 
+    // Pertahankan kelas yang sedang dipilih jika masih ada di daftar,
+    // jika tidak (atau level berubah) pilih kelas pertama.
     if (filtered.length > 0) {
-      this.currentSelectedClass = filtered[0].id;
-      classSelector.value = this.currentSelectedClass;
+      if (filtered.some(c => c.id === this.currentSelectedClass)) {
+        classSelector.value = this.currentSelectedClass;
+      } else {
+        this.currentSelectedClass = filtered[0].id;
+        classSelector.value = this.currentSelectedClass;
+      }
     } else {
       this.currentSelectedClass = "";
     }

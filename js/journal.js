@@ -255,7 +255,13 @@ const JournalModule = {
 
     filterSelect.innerHTML = `<option value="all">Semua Kelas (${this.currentFilterLevel.toUpperCase()})</option>` +
       filteredClasses.map(c => `<option value="${c.id}">[${c.level}] ${c.name}</option>`).join("");
-    this.currentFilterClass = "all";
+
+    // Pertahankan kelas yang sedang dipilih (jika masih ada di daftar)
+    if (this.currentFilterClass !== "all" && filteredClasses.some(c => c.id === this.currentFilterClass)) {
+      filterSelect.value = this.currentFilterClass;
+    } else {
+      this.currentFilterClass = "all";
+    }
   },
 
   getFilteredEntries() {

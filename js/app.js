@@ -294,21 +294,21 @@ const App = {
     container.innerHTML = journal.map(item => {
       const cls = classMap[item.classId] || { name: item.classId, level: item.level || "SD" };
       return `
-        <div class="dash-activity-item" onclick="JournalModule.viewDetails('${item.id}')">
+        <div class="dash-activity-item" onclick="JournalModule.viewDetails('${this.escapeHtml(item.id)}')">
           <div class="dash-activity-badge ${cls.level === 'SD' ? 'bg-sd' : 'bg-smp'}">
-            ${cls.level}
+            ${this.escapeHtml(cls.level)}
           </div>
           <div class="dash-activity-content">
             <div class="dash-activity-title">
-              <strong>${cls.name}</strong> &bull; Pertemuan ${item.meetingNo || 1} &bull; <span class="text-primary">${item.aspect}</span>
+              <strong>${this.escapeHtml(cls.name)}</strong> &bull; Pertemuan ${this.escapeHtml(item.meetingNo || 1)} &bull; <span class="text-primary">${this.escapeHtml(item.aspect)}</span>
             </div>
-            <div class="dash-activity-topic">${item.topic || item.chapter || ''}</div>
+            <div class="dash-activity-topic">${this.escapeHtml(item.topic || item.chapter || '')}</div>
             <div class="dash-activity-time text-xs text-muted">
-              📅 ${item.date} &bull; ${item.time || ''}
+              📅 ${this.escapeHtml(item.date)} &bull; ${this.escapeHtml(item.time || '')}
             </div>
           </div>
           <div class="dash-activity-status">
-            <span class="badge ${item.status === 'Selesai' ? 'badge-success' : 'badge-warning'}">${item.status}</span>
+            <span class="badge ${item.status === 'Selesai' ? 'badge-success' : 'badge-warning'}">${this.escapeHtml(item.status)}</span>
           </div>
         </div>
       `;
@@ -356,9 +356,10 @@ const App = {
         return;
       }
 
-      container.innerHTML = list.map((item, idx) => {
+      container.innerHTML = list.map((item) => {
         const cls = classMap[item.classId] || { name: item.classId, level: item.level };
         const aspectBadge = JournalModule ? JournalModule.getAspectBadgeClass(item.aspect) : "badge-primary";
+        const globalIdx = PAI_SYLLABUS.indexOf(item);
 
         return `
           <div class="syllabus-card card-elevated">
@@ -384,7 +385,7 @@ const App = {
               </div>
             </div>
             <div class="syllabus-card-footer">
-              <button class="btn btn-sm btn-primary w-100" onclick="App.createJournalFromSyllabus('${item.classId}', ${idx})">
+              <button class="btn btn-sm btn-primary w-100" onclick="App.createJournalFromSyllabus('${item.classId}', ${globalIdx})">
                 <span>➕</span> Gunakan Materi Ini di Jurnal
               </button>
             </div>
@@ -405,15 +406,19 @@ const App = {
     JournalModule.openAddModal();
 
     setTimeout(() => {
+      const item = PAI_SYLLABUS[idx];
       const classSelect = document.getElementById("journalClassSelect");
       if (classSelect) {
+        // Set level toggle terlebih dahulu agar dropdown berisi kelas yang sesuai
+        if (item && item.level) {
+          JournalModule.setJournalModalLevel(item.level);
+        }
         classSelect.value = classId;
         const selectedOption = classSelect.options[classSelect.selectedIndex];
-        document.getElementById("journalFormLevel").value = selectedOption ? selectedOption.dataset.level : "SD";
+        document.getElementById("journalFormLevel").value = selectedOption ? selectedOption.dataset.level : (item ? item.level : "SD");
         JournalModule.populateSyllabusPreset(classId);
       }
 
-      const item = PAI_SYLLABUS[idx];
       if (item) {
         document.getElementById("journalAspect").value = item.aspect;
         document.getElementById("journalChapter").value = item.chapter;
@@ -763,6 +768,16 @@ const App = {
         document.body.classList.remove("modal-open");
       }
     }
+  },
+
+  escapeHtml(str) {
+    if (str === undefined || str === null) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   },
 
   // Toast Notification System

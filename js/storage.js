@@ -229,7 +229,7 @@ const StorageService = {
       });
 
       const avg = count > 0 ? (total / count).toFixed(1) : "-";
-      const kktp = targetClass ? 75 : 75;
+      const kktp = this.getSettings().defaultKktp || 75;
       const status = avg !== "-" ? (Number(avg) >= kktp ? "Tuntas" : "Belum Tuntas") : "-";
 
       const cObj = classes.find(c => c.id === s.classId);

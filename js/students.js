@@ -187,6 +187,11 @@ const StudentsModule = {
 
     filterSelect.innerHTML = `<option value="all">Semua Kelas (${this.currentFilterLevel.toUpperCase()})</option>` +
       filtered.map(c => `<option value="${c.id}">[${c.level}] ${c.name}</option>`).join("");
+
+    // Pertahankan kelas yang sedang dipilih (jika masih ada di daftar)
+    if (this.currentFilterClass !== "all" && filtered.some(c => c.id === this.currentFilterClass)) {
+      filterSelect.value = this.currentFilterClass;
+    }
   },
 
   getFilteredStudents() {
