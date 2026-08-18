@@ -477,6 +477,12 @@ const StudentsModule = {
     App.openModal("batchStudentModal");
   },
 
+  setStudentModalLevel(level) {
+    const radioEl = document.querySelector(`input[name="studentModalLevel"][value="${level}"]`);
+    if (radioEl) radioEl.checked = true;
+    this.filterFormClassSelect(level, "studentClassSelect");
+  },
+
   setBatchModalLevel(level) {
     const radioEl = document.querySelector(`input[name="batchModalLevel"][value="${level}"]`);
     if (radioEl) radioEl.checked = true;

@@ -165,6 +165,12 @@ const GradesModule = {
     }
   },
 
+  setAssignmentModalLevel(level) {
+    const radioEl = document.querySelector(`input[name="asgModalLevel"][value="${level}"]`);
+    if (radioEl) radioEl.checked = true;
+    this.filterFormClassSelect(level);
+  },
+
   filterClassDropdownByLevel() {
     const classes = StorageService.getClasses();
     const classSelector = document.getElementById("gradebookClassSelect");

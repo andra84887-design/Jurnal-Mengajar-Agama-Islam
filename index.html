@@ -629,11 +629,11 @@
           <div class="form-group mb-3">
             <label class="form-label">Pilih Jenjang Sekolah:</label>
             <div class="level-toggle-group">
-              <label class="level-toggle-option">
+              <label class="level-toggle-option" onclick="JournalModule.setJournalModalLevel('SD')">
                 <input type="radio" name="journalModalLevel" value="SD" class="journal-modal-level-toggle" checked>
                 <span>🏫 Jenjang SD (Kelas 1 - 6)</span>
               </label>
-              <label class="level-toggle-option">
+              <label class="level-toggle-option" onclick="JournalModule.setJournalModalLevel('SMP')">
                 <input type="radio" name="journalModalLevel" value="SMP" class="journal-modal-level-toggle">
                 <span>🏛️ Jenjang SMP (Kelas 7 - 9)</span>
               </label>
@@ -752,11 +752,11 @@
           <div class="form-group mb-3">
             <label class="form-label">Pilih Jenjang Sekolah:</label>
             <div class="level-toggle-group">
-              <label class="level-toggle-option">
+              <label class="level-toggle-option" onclick="GradesModule.setAssignmentModalLevel('SD')">
                 <input type="radio" name="asgModalLevel" value="SD" class="asg-form-level-toggle" checked>
                 <span>🏫 Jenjang SD</span>
               </label>
-              <label class="level-toggle-option">
+              <label class="level-toggle-option" onclick="GradesModule.setAssignmentModalLevel('SMP')">
                 <input type="radio" name="asgModalLevel" value="SMP" class="asg-form-level-toggle">
                 <span>🏛️ Jenjang SMP</span>
               </label>
@@ -871,11 +871,11 @@
           <div class="form-group mb-3">
             <label class="form-label">Pilih Jenjang Sekolah:</label>
             <div class="level-toggle-group">
-              <label class="level-toggle-option">
+              <label class="level-toggle-option" onclick="StudentsModule.setStudentModalLevel('SD')">
                 <input type="radio" name="studentModalLevel" value="SD" class="student-form-level-toggle" checked>
                 <span>🏫 Jenjang SD (Kelas 1 - 6)</span>
               </label>
-              <label class="level-toggle-option">
+              <label class="level-toggle-option" onclick="StudentsModule.setStudentModalLevel('SMP')">
                 <input type="radio" name="studentModalLevel" value="SMP" class="student-form-level-toggle">
                 <span>🏛️ Jenjang SMP (Kelas 7 - 9)</span>
               </label>

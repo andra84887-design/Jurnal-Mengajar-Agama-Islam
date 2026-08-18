@@ -237,6 +237,12 @@ const JournalModule = {
     }
   },
 
+  setJournalModalLevel(level) {
+    const radioEl = document.querySelector(`input[name="journalModalLevel"][value="${level}"]`);
+    if (radioEl) radioEl.checked = true;
+    this.filterFormClassSelect(level);
+  },
+
   updateClassFilterDropdown() {
     const classes = StorageService.getClasses();
     const filterSelect = document.getElementById("journalFilterClass");
