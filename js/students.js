@@ -426,6 +426,15 @@ const StudentsModule = {
     StorageService.saveStudents(students);
     if (window.SupabaseService) SupabaseService.saveStudentRemote(studentData);
     App.closeModal("studentModal");
+    
+    // Auto-switch view to the target class so the new student is visible immediately
+    this.currentFilterLevel = studentData.level;
+    this.currentFilterClass = studentData.classId;
+    document.querySelectorAll(".student-level-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.level === studentData.level);
+    });
+    this.updateFilterDropdown();
+
     this.renderClassFilterPills();
     this.render();
     App.updateDashboardStats();
@@ -590,6 +599,15 @@ const StudentsModule = {
     StorageService.saveStudents(students);
     App.closeModal("batchStudentModal");
     App.showToast(`Berhasil menambahkan ${addedCount} siswa baru ke ${cls ? cls.name : 'kelas'}!`, "success");
+    
+    // Auto-switch view to the target class so new students are visible immediately
+    this.currentFilterLevel = targetLevel;
+    this.currentFilterClass = classId;
+    document.querySelectorAll(".student-level-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.level === targetLevel);
+    });
+    this.updateFilterDropdown();
+
     this.renderClassFilterPills();
     this.render();
     App.updateDashboardStats();

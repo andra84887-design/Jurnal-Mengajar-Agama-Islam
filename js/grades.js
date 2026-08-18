@@ -587,6 +587,13 @@ const GradesModule = {
     StorageService.saveAssignments(list);
     if (window.SupabaseService) SupabaseService.saveAssignmentRemote(asgData);
 
+    // UX Fix: Auto-switch view to the target level and class so the new assignment is visible
+    this.currentFilterLevel = asgData.level;
+    document.querySelectorAll(".grade-level-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.level === asgData.level);
+    });
+    this.filterClassDropdownByLevel();
+    
     this.currentSelectedClass = classId;
     const classSelector = document.getElementById("gradebookClassSelect");
     if (classSelector) classSelector.value = classId;

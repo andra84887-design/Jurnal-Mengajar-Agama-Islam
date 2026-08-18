@@ -523,6 +523,15 @@ const JournalModule = {
     StorageService.saveJournal(list);
     if (window.SupabaseService) SupabaseService.saveJournalRemote(entryData);
     App.closeModal("journalModal");
+    
+    // Auto-switch view to the target class so the new journal is visible immediately
+    this.currentFilterLevel = level;
+    this.currentFilterClass = classId;
+    document.querySelectorAll(".journal-level-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.level === level);
+    });
+    this.updateClassFilterDropdown();
+    
     this.renderClassFilterPills();
     this.render();
     App.updateDashboardStats();
