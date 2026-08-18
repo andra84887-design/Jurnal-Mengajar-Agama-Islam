@@ -1,6 +1,6 @@
 /**
  * Storage & Data Management Layer
- * Handles LocalStorage persistence, backup/restore, and CSV/JSON export.
+ * Handles LocalStorage persistence, backup/restore, CSV/JSON export, and Supabase hooks.
  */
 
 const STORAGE_KEYS = {
@@ -12,7 +12,7 @@ const STORAGE_KEYS = {
 };
 
 const StorageService = {
-  // Inisialisasi awal jika storage masih kosong atau butuh update roster lengkap SD & SMP
+  // Inisialisasi storage bersih
   init() {
     if (!localStorage.getItem(STORAGE_KEYS.SETTINGS)) {
       this.saveSettings(DEFAULT_SETTINGS);
@@ -20,22 +20,22 @@ const StorageService = {
     if (!localStorage.getItem(STORAGE_KEYS.CLASSES)) {
       this.saveClasses(DEFAULT_CLASSES);
     }
-    
-    // Pastikan seluruh data siswa SD & SMP aktif
-    const currentStudents = this.getStudents();
-    if (!localStorage.getItem(STORAGE_KEYS.STUDENTS) || (Array.isArray(currentStudents) && currentStudents.length < SAMPLE_STUDENTS.length)) {
-      this.saveStudents(SAMPLE_STUDENTS);
+    if (!localStorage.getItem(STORAGE_KEYS.STUDENTS)) {
+      this.saveStudents([]);
     }
+    if (!localStorage.getItem(STORAGE_KEYS.JOURNAL)) {
+      this.saveJournal([]);
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.ASSIGNMENTS)) {
+      this.saveAssignments([]);
+    }
+  },
 
-    const currentJournal = this.getJournal();
-    if (!localStorage.getItem(STORAGE_KEYS.JOURNAL) || (Array.isArray(currentJournal) && currentJournal.length < SAMPLE_JOURNAL_ENTRIES.length)) {
-      this.saveJournal(SAMPLE_JOURNAL_ENTRIES);
-    }
-
-    const currentAssignments = this.getAssignments();
-    if (!localStorage.getItem(STORAGE_KEYS.ASSIGNMENTS) || (Array.isArray(currentAssignments) && currentAssignments.length < SAMPLE_ASSIGNMENTS.length)) {
-      this.saveAssignments(SAMPLE_ASSIGNMENTS);
-    }
+  // Kosongkan seluruh data jurnal, siswa, dan nilai
+  clearAllData() {
+    this.saveStudents([]);
+    this.saveJournal([]);
+    this.saveAssignments([]);
   },
 
   // Settings
@@ -70,7 +70,7 @@ const StorageService = {
   getStudents() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.STUDENTS);
-      return data ? JSON.parse(data) : SAMPLE_STUDENTS;
+      return data ? JSON.parse(data) : [];
     } catch (e) {
       console.error("Error reading students", e);
       return [];
@@ -84,7 +84,7 @@ const StorageService = {
   getJournal() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.JOURNAL);
-      return data ? JSON.parse(data) : SAMPLE_JOURNAL_ENTRIES;
+      return data ? JSON.parse(data) : [];
     } catch (e) {
       console.error("Error reading journal", e);
       return [];
@@ -98,7 +98,7 @@ const StorageService = {
   getAssignments() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.ASSIGNMENTS);
-      return data ? JSON.parse(data) : SAMPLE_ASSIGNMENTS;
+      return data ? JSON.parse(data) : [];
     } catch (e) {
       console.error("Error reading assignments", e);
       return [];
@@ -143,15 +143,6 @@ const StorageService = {
     } catch (e) {
       return { success: false, message: "Format file backup tidak valid: " + e.message };
     }
-  },
-
-  // Reset to Factory Default
-  resetToDefault() {
-    this.saveSettings(DEFAULT_SETTINGS);
-    this.saveClasses(DEFAULT_CLASSES);
-    this.saveStudents(SAMPLE_STUDENTS);
-    this.saveJournal(SAMPLE_JOURNAL_ENTRIES);
-    this.saveAssignments(SAMPLE_ASSIGNMENTS);
   },
 
   // Export Journal to CSV

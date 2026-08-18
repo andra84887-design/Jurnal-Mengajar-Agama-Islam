@@ -512,6 +512,7 @@ const JournalModule = {
     }
 
     StorageService.saveJournal(list);
+    if (window.SupabaseService) SupabaseService.saveJournalRemote(entryData);
     App.closeModal("journalModal");
     this.renderClassFilterPills();
     this.render();
@@ -524,6 +525,7 @@ const JournalModule = {
     let list = StorageService.getJournal();
     list = list.filter(j => j.id !== id);
     StorageService.saveJournal(list);
+    if (window.SupabaseService) SupabaseService.deleteJournalRemote(id);
     App.showToast("Catatan jurnal berhasil dihapus.", "info");
     this.renderClassFilterPills();
     this.render();

@@ -1,6 +1,6 @@
 # 📖 Jurnal Mengajar Guru Agama Islam SD & SMP THHK
 
-Aplikasi Web Modern, Cepat, dan *Offline-First* yang dirancang khusus untuk Guru Pendidikan Agama Islam (PAI & BP) di lingkungan **Sekolah SD dan SMP THHK**.
+Aplikasi Web Modern, Cepat, dan *Offline-First* yang dirancang khusus untuk Guru Pendidikan Agama Islam (PAI & BP) di lingkungan **Sekolah SD dan SMP THHK**. Dilengkapi integrasi database cloud **Supabase** untuk sinkronisasi otomatis antar-perangkat.
 
 ---
 
@@ -12,7 +12,7 @@ Aplikasi Web Modern, Cepat, dan *Offline-First* yang dirancang khusus untuk Guru
 - **Aksi Cepat**: Tombol *shortcut* untuk langsung mencatat jurnal atau membuat tugas baru.
 
 ### 2. 📖 Jurnal Mengajar Harian (Agenda KBM)
-- **Filter Cepat**: Berdasarkan Jenjang (**SD / SMP**), Kelas, dan kata kunci pencarian materi.
+- **Filter Cepat**: Berdasarkan Jenjang (**SD / SMP**), Deretan Tombol Kelas Langsung (*Class Pills*), dan kata kunci pencarian materi.
 - **Bank Materi Terintegrasi**: Pilihan preset materi PAI Kurikulum Merdeka (Fase A s/d Fase D) yang dapat mengisi form jurnal secara otomatis dalam 1 klik.
 - **Data Lengkap**: Hari/Tanggal, Alokasi Waktu/Jam ke-, Pertemuan ke-, Aspek PAI (*Al-Qur'an Hadis, Akidah, Akhlak, Fikih, Sejarah Islam*), Capaian/Tujuan Pembelajaran (TP/KD), Kegiatan & Metode Pembelajaran, Kehadiran, Status KBM, dan Catatan/Refleksi Guru.
 - **Ekspor CSV**: Unduh rekapitulasi data jurnal ke file spreadsheet CSV.
@@ -45,22 +45,35 @@ Aplikasi Web Modern, Cepat, dan *Offline-First* yang dirancang khusus untuk Guru
 - **Cetak Jurnal Mengajar**: Format tabel dinas resmi siap cetak A4 atau simpan ke PDF lengkap dengan Kop Surat THHK, identitas guru, alokasi waktu, serta kolom tanda tangan Kepala Sekolah & Guru PAI.
 - **Cetak Leger Nilai**: Format rekap nilai siswa satu kelas beserta status ketuntasan KKTP.
 
-### 7. ⚙️ Pengaturan & Backup Data
-- Kustomisasi Nama Sekolah (THHK), Nama Guru PAI, NIP/NUPTK, Nama Kepala Sekolah, Tahun Ajaran, dan Nilai Standar KKTP.
-- **Cadangkan Data (JSON)**: Unduh seluruh database ke file JSON untuk disimpan di Google Drive atau flashdisk.
+### 7. ⚡ Sinkronisasi Cloud Supabase & Backup Data
+- **Supabase Cloud Sync**: Simpan dan sinkronkan data Jurnal, Siswa, Tugas, dan Nilai ke database Supabase Cloud secara *real-time*.
+- **Offline-First Resilience**: Jika internet tidak tersedia, aplikasi tetap bekerja penuh menggunakan penyimpanan lokal browser dan dapat diunggah (*Push*) saat online.
+- **Cadangkan Data (JSON)**: Unduh seluruh database ke file JSON.
 - **Pulihkan Data (Restore)**: Unggah file backup kapan saja saat berganti komputer atau laptop.
+- **Kosongkan Semua Data**: Tombol pembersih untuk memulai dengan lembar kerja bersih.
+
+---
+
+## ⚡ Panduan Menghubungkan ke Supabase
+
+1. Buka dashboard akun Anda di [https://supabase.com](https://supabase.com) dan buat proyek baru (contoh: `jurnal-pai-thhk`).
+2. Masuk ke menu **SQL Editor** pada dashboard Supabase Anda.
+3. Salin seluruh isi file `supabase_schema.sql` (atau klik tombol **"Lihat Skrip SQL Tabel Supabase"** di menu Pengaturan aplikasi), lalu klik tombol **"Run"** untuk membuat seluruh tabel dan kebijakan keamanan (RLS).
+4. Buka menu **Project Settings &rarr; API** di Supabase:
+   - Salin **Project URL** (contoh: `https://xxxx.supabase.co`)
+   - Salin **Project API Keys (anon / public)**
+5. Masuk ke aplikasi menu **Pengaturan & Cloud**, tempelkan URL dan Anon Key pada form Supabase, lalu klik **"Simpan & Hubungkan Supabase"**.
+6. Klik **"Tes Koneksi"** untuk memastikan status berubah menjadi 🟢 **Terhubung Supabase Cloud**.
 
 ---
 
 ## 🚀 Cara Menjalankan Aplikasi
 
-Aplikasi ini bersifat **Offline-First**, artinya dapat dibuka langsung di laptop/komputer guru tanpa memerlukan instalasi server rumit atau koneksi internet:
-
 1. **Buka Langsung File HTML**:
    - Buka folder `d:\aplikasi\Jurnal Mengajar Agama Islam\`
    - Klik ganda file `index.html` untuk langsung membukanya di browser (Google Chrome, Microsoft Edge, Mozilla Firefox, dll).
 
-2. **Atau Menggunakan Local Server (Opsional)**:
+2. **Atau Menggunakan Local Server**:
    ```bash
    python -m http.server 8080 --directory "d:\aplikasi\Jurnal Mengajar Agama Islam"
    ```
@@ -72,15 +85,17 @@ Aplikasi ini bersifat **Offline-First**, artinya dapat dibuka langsung di laptop
 
 ```
 d:\aplikasi\Jurnal Mengajar Agama Islam\
-├── index.html            # Antarmuka Utama Aplikasi (Dashboard, Jurnal, Nilai, Siswa, Laporan, Pengaturan)
+├── index.html            # Antarmuka Utama Aplikasi
+├── supabase_schema.sql   # Skrip SQL Lengkap Pembuat Tabel & RLS Supabase
 ├── README.md             # Panduan Penggunaan & Dokumentasi Lengkap
 ├── css/
-│   └── style.css         # Styling Emerald & Gold Modern, Responsif & Format Cetak Dinas (@media print)
+│   └── style.css         # Styling Emerald & Gold Modern, Responsif & Format Cetak (@media print)
 └── js/
-    ├── data.js           # Data Awal: Kelas SD & SMP THHK, Bank Silabus PAI Lengkap, Data Siswa Contoh
-    ├── storage.js        # Manajemen Penyimpanan Lokal (LocalStorage), Backup/Restore JSON, Ekspor CSV
-    ├── journal.js        # Logika Jurnal Mengajar: CRUD, Filter SD/SMP, Auto-fill Materi, Pratinjau
-    ├── grades.js         # Logika Buku Nilai: Tugas, Matrix Nilai Interaktif, Kalkulator Rata-rata & KKTP
+    ├── data.js           # Data Awal: Kelas SD & SMP THHK, Bank Silabus PAI Lengkap
+    ├── storage.js        # Manajemen Penyimpanan Lokal (LocalStorage), Backup JSON, Ekspor CSV
+    ├── supabase.js       # Modul Sinkronisasi Cloud Supabase Database (CRUD & Realtime)
+    ├── journal.js        # Logika Jurnal Mengajar: CRUD, Filter SD/SMP, Auto-fill Materi
+    ├── grades.js         # Logika Buku Nilai: Tugas, Matrix Nilai Interaktif, Kalkulator KKTP
     ├── students.js       # Logika Data Siswa: Roster Kelas, Impor Massal, Profil & Rapor Mini
-    └── app.js            # Controller Utama: Router Tab, Metrik Dashboard, Silabus Browser, Generator Cetak
+    └── app.js            # Controller Utama: Router Tab, Metrik Dashboard, Silabus & Laporan Cetak
 ```

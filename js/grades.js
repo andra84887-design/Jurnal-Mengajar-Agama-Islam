@@ -484,6 +484,7 @@ const GradesModule = {
     }
 
     StorageService.saveAssignments(assignments);
+    if (window.SupabaseService) SupabaseService.saveAssignmentRemote(asg);
     this.render();
     App.updateDashboardStats();
     App.showToast("Nilai berhasil disimpan otomatis.", "info", 1500);
@@ -505,7 +506,9 @@ const GradesModule = {
 
     const today = new Date().toISOString().split("T")[0];
     document.getElementById("assignmentDate").value = today;
-    document.getElementById("assignmentDueDate").value = today;
+
+    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+    document.getElementById("assignmentDueDate").value = nextWeek;
     document.getElementById("assignmentMaxScore").value = 100;
     document.getElementById("assignmentKktp").value = StorageService.getSettings().defaultKktp || 75;
 
@@ -576,6 +579,8 @@ const GradesModule = {
     }
 
     StorageService.saveAssignments(list);
+    if (window.SupabaseService) SupabaseService.saveAssignmentRemote(asgData);
+
     this.currentSelectedClass = classId;
     const classSelector = document.getElementById("gradebookClassSelect");
     if (classSelector) classSelector.value = classId;
@@ -592,6 +597,7 @@ const GradesModule = {
     let list = StorageService.getAssignments();
     list = list.filter(a => a.id !== id);
     StorageService.saveAssignments(list);
+    if (window.SupabaseService) SupabaseService.deleteAssignmentRemote(id);
     App.showToast("Tugas dan nilai berhasil dihapus.", "info");
     this.render();
     App.updateDashboardStats();
@@ -704,6 +710,7 @@ const GradesModule = {
     });
 
     StorageService.saveAssignments(assignments);
+    if (window.SupabaseService) SupabaseService.saveAssignmentRemote(asg);
     App.closeModal("gradingModal");
     App.showToast("Seluruh nilai tugas berhasil disimpan!", "success");
     this.render();

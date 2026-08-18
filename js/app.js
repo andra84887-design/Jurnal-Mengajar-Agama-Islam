@@ -1,6 +1,6 @@
 /**
  * Main Application Controller (App.js)
- * Manages routing, dashboard metrics, syllabus browser, official print generation, settings, and UI utilities.
+ * Manages routing, dashboard metrics, syllabus browser, official print generation, settings, Supabase sync, and UI utilities.
  */
 
 const App = {
@@ -8,6 +8,7 @@ const App = {
 
   init() {
     StorageService.init();
+    if (window.SupabaseService) SupabaseService.initClient();
 
     // Initialize modules
     if (window.JournalModule) JournalModule.init();
@@ -67,6 +68,53 @@ const App = {
       });
     }
 
+    // Supabase Config Form
+    const supabaseForm = document.getElementById("supabaseConfigForm");
+    if (supabaseForm) {
+      supabaseForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.saveSupabaseConfig();
+      });
+    }
+
+    // Test Supabase Connection
+    const testSupabaseBtn = document.getElementById("testSupabaseBtn");
+    if (testSupabaseBtn) {
+      testSupabaseBtn.addEventListener("click", async () => {
+        this.showToast("Menguji koneksi ke Supabase...", "info");
+        const ok = await SupabaseService.checkConnection();
+        if (ok) {
+          this.showToast("Koneksi Supabase Berhasil! Database terhubung.", "success");
+        } else {
+          this.showToast("Gagal terhubung. Pastikan URL, Anon Key, dan SQL Schema sudah dibuat.", "danger");
+        }
+      });
+    }
+
+    // Pull from Supabase
+    const pullSupabaseBtn = document.getElementById("pullSupabaseBtn");
+    if (pullSupabaseBtn) {
+      pullSupabaseBtn.addEventListener("click", () => {
+        SupabaseService.pullFromSupabase();
+      });
+    }
+
+    // Push to Supabase
+    const pushSupabaseBtn = document.getElementById("pushSupabaseBtn");
+    if (pushSupabaseBtn) {
+      pushSupabaseBtn.addEventListener("click", () => {
+        SupabaseService.pushAllToSupabase();
+      });
+    }
+
+    // Copy SQL Schema Modal / Trigger
+    const copySqlBtn = document.getElementById("copySqlSchemaBtn");
+    if (copySqlBtn) {
+      copySqlBtn.addEventListener("click", () => {
+        this.openModal("sqlModal");
+      });
+    }
+
     // Backup Export
     const exportBackupBtn = document.getElementById("exportBackupBtn");
     if (exportBackupBtn) {
@@ -96,11 +144,23 @@ const App = {
       });
     }
 
-    // Reset Data button
+    // Tombol Kosongkan Semua Data (Clean Slate)
+    const clearAllDataBtn = document.getElementById("clearAllDataBtn");
+    if (clearAllDataBtn) {
+      clearAllDataBtn.addEventListener("click", () => {
+        if (confirm("KOSONGKAN SEMUA DATA:\nApakah Anda yakin ingin mengosongkan seluruh catatan jurnal, data siswa, dan buku nilai? Anda akan memulai dengan lembar kerja bersih.")) {
+          StorageService.clearAllData();
+          this.showToast("Semua data jurnal, siswa, dan nilai telah dikosongkan. Siap diisi data baru!", "info");
+          setTimeout(() => location.reload(), 1000);
+        }
+      });
+    }
+
+    // Reset Data ke Awal
     const resetDataBtn = document.getElementById("resetDataBtn");
     if (resetDataBtn) {
       resetDataBtn.addEventListener("click", () => {
-        if (confirm("PERINGATAN: Apakah Anda yakin ingin mereset seluruh data kembali ke data awal contoh? Data yang Anda buat akan hilang jika belum dibackup.")) {
+        if (confirm("PERINGATAN: Apakah Anda yakin ingin mereset seluruh data kembali ke pengaturan awal?")) {
           StorageService.resetToDefault();
           this.showToast("Data berhasil direset ke pengaturan awal.", "info");
           setTimeout(() => location.reload(), 1000);
@@ -127,14 +187,24 @@ const App = {
       this.updateDashboardStats();
       this.renderRecentActivities();
     } else if (tabId === "journal") {
-      if (window.JournalModule) JournalModule.render();
+      if (window.JournalModule) {
+        JournalModule.renderClassFilterPills();
+        JournalModule.render();
+      }
     } else if (tabId === "grades") {
-      if (window.GradesModule) GradesModule.render();
+      if (window.GradesModule) {
+        GradesModule.renderClassFilterPills();
+        GradesModule.render();
+      }
     } else if (tabId === "students") {
-      if (window.StudentsModule) StudentsModule.render();
+      if (window.StudentsModule) {
+        StudentsModule.renderClassFilterPills();
+        StudentsModule.render();
+      }
+    } else if (tabId === "settings") {
+      this.populateSettingsForm();
     }
 
-    // Scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
   },
 
@@ -142,7 +212,6 @@ const App = {
     const journal = StorageService.getJournal();
     const students = StorageService.getStudents();
     const assignments = StorageService.getAssignments();
-    const classes = StorageService.getClasses();
     const settings = StorageService.getSettings();
 
     // Counts
@@ -196,7 +265,9 @@ const App = {
     if (headerSchool) headerSchool.textContent = settings.schoolName || "SEKOLAH THHK";
 
     const headerTeacher = document.getElementById("headerTeacherName");
-    if (headerTeacher) headerTeacher.textContent = settings.teacherName || "Guru Agama Islam";
+    if (headerTeacher) headerTeacher.textContent = settings.teacherName || "Guru Pendidikan Agama Islam";
+
+    if (window.SupabaseService) SupabaseService.updateStatusBadge();
   },
 
   renderRecentActivities() {
@@ -208,7 +279,13 @@ const App = {
     const classMap = Object.fromEntries(classes.map(c => [c.id, c]));
 
     if (journal.length === 0) {
-      container.innerHTML = `<div class="empty-state py-3 text-muted">Belum ada catatan jurnal mengajar terbaru.</div>`;
+      container.innerHTML = `
+        <div class="empty-state py-4 text-muted">
+          <div class="empty-icon">📖</div>
+          <h4>Belum Ada Catatan Jurnal</h4>
+          <p>Mulai catat materi pertama Anda dengan menekan tombol <strong>"+ Catat Jurnal Baru"</strong>.</p>
+        </div>
+      `;
       return;
     }
 
@@ -225,7 +302,7 @@ const App = {
             </div>
             <div class="dash-activity-topic">${item.topic}</div>
             <div class="dash-activity-time text-xs text-muted">
-              <i class="icon-calendar"></i> ${item.date} &bull; ${item.time || ''}
+              📅 ${item.date} &bull; ${item.time || ''}
             </div>
           </div>
           <div class="dash-activity-status">
@@ -306,7 +383,7 @@ const App = {
             </div>
             <div class="syllabus-card-footer">
               <button class="btn btn-sm btn-primary w-100" onclick="App.createJournalFromSyllabus('${item.classId}', ${idx})">
-                <i class="icon-plus-circle"></i> Gunakan Materi Ini di Jurnal
+                <span>➕</span> Gunakan Materi Ini di Jurnal
               </button>
             </div>
           </div>
@@ -373,7 +450,6 @@ const App = {
       journals = journals.filter(j => (j.semester || settings.semester).includes(semester));
     }
 
-    // Sort by date ascending
     journals.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     const targetClassName = classId === "all" ? "Seluruh Jenjang (SD & SMP)" : (classMap[classId] ? classMap[classId].name : classId);
@@ -607,7 +683,7 @@ const App = {
     window.print();
   },
 
-  // Settings
+  // Settings & Supabase
   populateSettingsForm() {
     const settings = StorageService.getSettings();
     document.getElementById("settSchoolName").value = settings.schoolName || "SEKOLAH THHK";
@@ -618,6 +694,16 @@ const App = {
     document.getElementById("settAcademicYear").value = settings.academicYear || "2024/2025";
     document.getElementById("settSemester").value = settings.semester || "1 (Ganjil)";
     document.getElementById("settKktp").value = settings.defaultKktp || 75;
+
+    // Supabase
+    if (window.SupabaseService) {
+      const config = SupabaseService.getConfig();
+      const urlInput = document.getElementById("supabaseUrl");
+      const keyInput = document.getElementById("supabaseAnonKey");
+      if (urlInput) urlInput.value = config.url || "";
+      if (keyInput) keyInput.value = config.anonKey || "";
+      SupabaseService.updateStatusBadge();
+    }
   },
 
   saveSettings() {
@@ -633,8 +719,29 @@ const App = {
     };
 
     StorageService.saveSettings(settings);
-    this.showToast("Pengaturan aplikasi berhasil disimpan!", "success");
+    this.showToast("Pengaturan identitas sekolah & guru berhasil disimpan!", "success");
     this.updateDashboardStats();
+  },
+
+  saveSupabaseConfig() {
+    const url = document.getElementById("supabaseUrl").value.trim();
+    const anonKey = document.getElementById("supabaseAnonKey").value.trim();
+
+    SupabaseService.saveConfig({
+      url: url,
+      anonKey: anonKey,
+      autoSync: true
+    });
+
+    this.showToast("Konfigurasi Supabase disimpan. Menghubungkan...", "info");
+    setTimeout(async () => {
+      const ok = await SupabaseService.checkConnection();
+      if (ok) {
+        this.showToast("Terhubung ke Supabase Cloud Database!", "success");
+      } else {
+        this.showToast("Periksa kembali Supabase Project URL dan Anon Key Anda.", "warning");
+      }
+    }, 500);
   },
 
   // Modal helpers

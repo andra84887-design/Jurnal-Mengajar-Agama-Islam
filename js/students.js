@@ -416,6 +416,7 @@ const StudentsModule = {
     }
 
     StorageService.saveStudents(students);
+    if (window.SupabaseService) SupabaseService.saveStudentRemote(studentData);
     App.closeModal("studentModal");
     this.renderClassFilterPills();
     this.render();
@@ -429,12 +430,14 @@ const StudentsModule = {
     let students = StorageService.getStudents();
     students = students.filter(s => s.id !== id);
     StorageService.saveStudents(students);
+    if (window.SupabaseService) SupabaseService.deleteStudentRemote(id);
 
     // Clean up student scores in assignments
     let assignments = StorageService.getAssignments();
     assignments.forEach(a => {
       if (a.scores && a.scores[id] !== undefined) {
         delete a.scores[id];
+        if (window.SupabaseService) SupabaseService.saveAssignmentRemote(a);
       }
     });
     StorageService.saveAssignments(assignments);
@@ -500,22 +503,24 @@ const StudentsModule = {
       }
 
       if (name) {
-        students.push({
+        const newStudent = {
           id: "s-" + Date.now().toString(36) + Math.random().toString(36).substr(2, 4) + index,
           classId: classId,
           level: cls ? cls.level : "SD",
           name: name,
           nisn: nisn,
           gender: gender,
-          notes: ""
-        });
+          notes: "Diimpor massal"
+        };
+        students.push(newStudent);
+        if (window.SupabaseService) SupabaseService.saveStudentRemote(newStudent);
         addedCount++;
       }
     });
 
     StorageService.saveStudents(students);
     App.closeModal("batchStudentModal");
-    App.showToast(`Berhasil menambahkan ${addedCount} siswa baru ke kelas!`, "success");
+    App.showToast(`Berhasil menambahkan ${addedCount} siswa baru ke kelas ini!`, "success");
     this.renderClassFilterPills();
     this.render();
     App.updateDashboardStats();
